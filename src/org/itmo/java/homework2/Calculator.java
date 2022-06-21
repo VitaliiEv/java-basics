@@ -60,14 +60,14 @@ public class Calculator {
         System.out.println(divide(a, b));
 
         long c = -200;
-        long d = 0;
+        long d = 3457567546765L;
         System.out.println(summ(c, d));
         System.out.println(substract(c, d));
         System.out.println(multiply(c, d));
         System.out.println(divide(c, d));
 
         double e = 45345345345.44d;
-        double f = 1.9664d;
+        double f = 0d;
         System.out.println(summ(e, f));
         System.out.println(substract(e, f));
         System.out.println(multiply(e, f));
