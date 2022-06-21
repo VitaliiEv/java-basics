@@ -40,7 +40,8 @@ public class MyComputer {
 
     public static void main(String[] args) {
         System.out.println(new MyComputer());
-        MyComputer comp = new MyComputer("Core i5", 2 *  (long) Math.pow(1024,12), 16 * (long) Math.pow(1024,6), 4, "Nvidia");
+        MyComputer comp = new MyComputer("Core i5", 2 *  (long) Math.pow(1024, 4), 16 * (long) Math.pow(1024, 2), 4, "Nvidia");
         System.out.println(comp);
+
     }
 }
