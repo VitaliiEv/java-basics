@@ -23,7 +23,7 @@ public class Storage {
         return id;
     }
 
-    public synchronized String getStats() {
+    public String getStats() {
         return this.cargo + "/" + this.capacity;
     }
 
@@ -33,14 +33,20 @@ public class Storage {
 
     public synchronized void setCargo(long c, long loaderPause) {
         try {
-            while (c > this.capacity) {
-                System.out.println("Storage №" + this.id + ": Cargo full");
-                wait();
+            //todo rewrite with exceptions
+            if (c > this.capacity) {
+                throw new IllegalArgumentException("Storage №" + this.id + ": Cannot add cargo to full storage");
+            } else if (c < 0) {
+                throw new IllegalArgumentException("Storage №" + this.id + ": Cannot take cargo from empty storage");
             }
-            while (c < 0) {
-                System.out.println("Storage №" + this.id + ": No cargo left in storage");
-                wait();
-            }
+//            while (c > this.capacity) {
+//                System.out.println("Storage №" + this.id + ": Cargo full");
+//                wait();
+//            }
+//            while (c < 0) {
+//                System.out.println("Storage №" + this.id + ": No cargo left in storage");
+//                wait();
+//            }
             while (this.isOccupied) {
                 System.out.println("Storage №" + this.id + ": Cant use storage: storage occupied");
                 wait();
@@ -49,35 +55,9 @@ public class Storage {
             this.cargo = c;
             Thread.sleep(loaderPause);
             this.isOccupied = false;
+            System.out.println("Storage №" + this.id + " load " + this.getStats());
             notifyAll();
 
-        } catch (InterruptedException e) {
-            System.out.println(e);
-        }
-    }
-
-    @Deprecated
-    public void setCargo1(long c, long loaderPause) {
-        try {
-            synchronized (this) {
-                while (c > this.capacity) {
-                    System.out.println("Storage №" + this.id + ": Cargo full");
-                    wait();
-                }
-                while (c < 0) {
-                    System.out.println("Storage №" + this.id + ": No cargo left in storage");
-                    wait();
-                }
-                while (this.isOccupied) {
-                    System.out.println("Storage №" + this.id + ": Cant use storage: storage occupied");
-                    wait();
-                }
-                this.isOccupied = true;
-                this.cargo = c;
-                Thread.sleep(loaderPause);
-                this.isOccupied = false;
-                notifyAll();
-            }
         } catch (InterruptedException e) {
             System.out.println(e);
         }

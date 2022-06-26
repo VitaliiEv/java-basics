@@ -24,22 +24,22 @@ public class Main {
     private static final int TASK_CARGO_MIN;
 
     static {
-        PORT_CAPACITY_MAX = 200;
-        PORT_CAPACITY_MIN = 100;
-        PORT_CARGO_MAX = 120;
-        PORT_CARGO_MIN = 20;
+        PORT_CAPACITY_MAX = 300;
+        PORT_CAPACITY_MIN = 200;
+        PORT_CARGO_MAX = 180;
+        PORT_CARGO_MIN = 100;
 
-        PIERCE_NUM_MAX = 10;
+        PIERCE_NUM_MAX = 5;
         PIERCE_NUM_MIN = 2;
-        PIERCE_SPEED_MAX = 20d;
-        PIERCE_SPEED_MIN = 5d;
+        PIERCE_SPEED_MAX = 4d;
+        PIERCE_SPEED_MIN = 2d;
 
-        SHIP_NUM_MAX = 15;
-        SHIP_NUM_MIN = 5;
+        SHIP_NUM_MAX = 8;
+        SHIP_NUM_MIN = 3;
         SHIP_CAPACITY_MAX = 50;
         SHIP_CAPACITY_MIN = 30;
-        SHIP_CARGO_MAX = 10;
-        SHIP_CARGO_MIN = 2;
+        SHIP_CARGO_MAX = 15;
+        SHIP_CARGO_MIN = 5;
 
         TASK_CARGO_MAX = 50;
         TASK_CARGO_MIN = 10;
@@ -48,82 +48,38 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Port saintPetersburg = portInit(-1);
-        Ship[] ships = shipInit(-1);
 
-        Thread port = new Thread(saintPetersburg);
-        for (Ship s : ships) {
-            Thread t = new Thread(() -> {
-                long cargoTask1 = (new Random()).nextInt(TASK_CARGO_MAX - TASK_CARGO_MIN) + TASK_CARGO_MIN;
-                System.out.println("Ship №" + s.getId() + " (" + s.getStats() + ") task 1: load " + cargoTask1 + " cargo from port to ship");
-                long cargoTask2 = (new Random()).nextInt(TASK_CARGO_MAX - TASK_CARGO_MIN) + TASK_CARGO_MIN;
-                System.out.println("Ship №" + s.getId() + " (" + s.getStats() + ") task 2: unload " + cargoTask2 + " cargo from ship to port");
-                s.dockAt(saintPetersburg);
-                s.getPierce().loadFromTo(saintPetersburg, s, cargoTask1);
-                s.getPierce().loadFromTo(s, saintPetersburg, cargoTask2);
-                s.unDock(saintPetersburg);
-            });
-            t.start();
-        }
-        port.start();
-//        ships[0].dockAt(saintPetersburg);
-
-//        Thread[] dockThreads = new Thread[ships.length];
-//        Thread[] loadThreads = new Thread[ships.length];
-//        Thread[] unLoadThreads = new Thread[ships.length];
-//        Thread[] unDockThreads = new Thread[ships.length];
-//
-//        for (int i = 0; i < ships.length; i++) {
-//            Ship s = ships[i];
-//            Thread dock = new Thread(() -> s.dockAt(saintPetersburg));
-//            long cargoTask1 = (new Random()).nextInt(SHIP_CAPACITY_MAX - SHIP_CAPACITY_MIN) + SHIP_CAPACITY_MIN;
-//            System.out.println("Ship №" + s.getId() + " (" + s.getStats() + ") task 1: load " + cargoTask1 + " cargo from port to ship");
-//            Thread load = new Thread(() -> s.getPierce().loadFromTo(saintPetersburg, s, cargoTask1));
-//
-//            long cargoTask2 = (new Random()).nextInt(SHIP_CAPACITY_MAX - SHIP_CAPACITY_MIN) + SHIP_CAPACITY_MIN;
-//            System.out.println("Ship №" + s.getId() + " (" + s.getStats() + ") task 2: unload " + cargoTask2 + " cargo from ship to port");
-//            Thread unLoad = new Thread(() -> s.getPierce().loadFromTo(s, saintPetersburg, cargoTask2));
-//            Thread unDock = new Thread(() -> s.unDock(saintPetersburg));
-//
-//            dockThreads[i] = dock;
-//            loadThreads[i] = load;
-//            unLoadThreads[i] = unLoad;
-//            unDockThreads[i] = unDock;
-//        }
-//
-//        System.out.println("Docking threads started");
-//        for (int i = 0; i < ships.length; i++) {
-//            dockThreads[i].start();
-//        }
-//        System.out.println("Docking threads finished");
-//
-//        System.out.println("Docking threads joining");
-//        for (int i = 0; i < ships.length; i++) {
+        Port saintPetersburg = portInit(0);
+        Ship[] ships = shipInit(0);
+//        Thread port = new Thread(saintPetersburg);
+        ships[0].setCargo(-1, 100);
+//        ThreadGroup shipGroup = new ThreadGroup("ships");
+//        Thread port = new Thread(() -> {
+//            System.out.println("Port run Thread - " + saintPetersburg.getAllStats());
 //            try {
-//                dockThreads[i].join();
+//                while (shipGroup.activeCount() != 0) {
+//                    System.out.println("Port run Thread - " + saintPetersburg.getAllStats());
+//                    Thread.sleep(1000);
+//                }
 //            } catch (InterruptedException e) {
 //                System.out.println(e);
 //            }
-//        }
-//        System.out.println("Docking threads joined");
+//        });
 //
-//        for (int i = 0; i < ships.length; i++) {
-//            loadThreads[i].start();
-//            unLoadThreads[i].start();
-//         }
-//
-//        for (int i = 0; i < ships.length; i++) {
-//            try {
-//                loadThreads[i].join();
-//                unLoadThreads[i].join();
-//            } catch (InterruptedException e) {
-//                System.out.println(e);
-//            }
+//        for (Ship s : ships) {
+//            Thread t = new Thread(shipGroup, () -> {
+//                long cargoTask1 = (new Random()).nextInt((int) s.getCargo() - 1) + 1;
+//                long cargoTask2 = (new Random()).nextInt((int) s.capacity - TASK_CARGO_MIN) + TASK_CARGO_MIN;
+//                System.out.println("Ship №" + s.getId() + " (" + s.getStats() + ") task 2: unload " + cargoTask1 + " cargo from ship to port");
+//                System.out.println("Ship №" + s.getId() + " (" + s.getStats() + ") task 1: load " + cargoTask2 + " cargo from port to ship");
+//                s.dockAt(saintPetersburg);
+//                s.getPierce().loadFromTo(s, saintPetersburg, cargoTask1);
+//                s.getPierce().loadFromTo(saintPetersburg, s, cargoTask2);
+//                s.unDock(saintPetersburg);
+//            });
+//            t.start();
 //        }
-//
-//        for (int i = 0; i < ships.length; i++) {
-//            unDockThreads[i].start();
-//        }
+//        port.start();
     }
 
     public static Port portInit(int option) {
@@ -177,6 +133,7 @@ public class Main {
             default:
                 return shipInitRandom();
         }
+
     }
 
     public static Ship[] shipInitRandom() {

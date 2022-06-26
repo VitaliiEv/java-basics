@@ -21,24 +21,27 @@ public class Ship extends Storage {
             if (this.pierce != null) {
                 throw new UnsupportedOperationException("Ship " + id + " is already docked.");
             } else {
-                try {
-                    synchronized (this) {
-                        while (port.allPiercesOccupied()) {
-                            System.out.println("Ship №" + this.id + " waiting for free pierce");
-                            wait();
-                        }
-                        // todo rewrite sinchronization
-                        Pierce p = port.getUnoccupiedPierce();
-                        port.occupyPierce(this, p);
-                        this.pierce = p;
-                        System.out.println("Ship №" + this.id + " docked, load:" + getStats());
-//                        System.out.println(port.getAllStats());
+                synchronized (this) {
+                    while (port.allPiercesOccupied()) {
+                        System.out.println("Ship №" + this.id + " waiting for free pierce");
+                        wait();
                     }
-                } catch (InterruptedException e) {
-                    System.out.println(e);
                 }
+                Pierce p = port.getUnoccupiedPierce();
+                if (p == null) {
+                    throw new UnsupportedOperationException("All pierces occupied");
+                } else {
+                    port.occupyPierce(this, p);
+                    synchronized (this) {
+                        this.pierce = p;
+                    }
+                }
+                System.out.println("Ship №" + this.id + " docked." + port.getAllStats());
             }
+
         } catch (UnsupportedOperationException e) {
+            System.out.println(e);
+        } catch (InterruptedException e) {
             System.out.println(e);
         }
     }
@@ -50,5 +53,6 @@ public class Ship extends Storage {
             System.out.println("Ship №" + this.id + " undocked, load:" + getStats());
             System.out.println(port.getAllStats());
         }
+        notifyAll();
     }
 }
