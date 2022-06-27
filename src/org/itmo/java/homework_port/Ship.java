@@ -12,42 +12,27 @@ public class Ship extends Storage {
     }
 
 
-    public Loader getPierce() {
+    public Pierce getPierce() {
         return pierce;
     }
 
-    public synchronized void dockAt(Port port) {
-        if (this.pierce != null) {
-            throw new UnsupportedOperationException("Ship " + id + " is already docked.");
-        } else {
-            try {
-                //  synchronized (this) {
-                Pierce p;
-                while ( (p = port.getUnoccupiedPierce()) == null) {
-                    System.out.println("Ship №" + this.id + " waiting for free pierce");
-                    //todo rework without sleep
-                    // todo port shoeld tell ships to sleep or to dock
-                    wait(1000);
-                }
-                this.pierce = p;
-                port.occupyPierce(this, p);
-                System.out.println("Ship №" + this.id + " docked." + port.getAllStats());
-            } catch (UnsupportedOperationException e) {
-                System.out.println(e);
-            } catch (InterruptedException e) {
-                System.out.println(e);
+    public synchronized void setPierce(Pierce pierce) {
+        try {
+            if (this.pierce != null && pierce != null) {
+                throw new UnsupportedOperationException("Ship " + id + " is already docked.");
+            } else {
+                this.pierce = pierce;
             }
+        } catch (UnsupportedOperationException e) {
+            System.out.println(e);
         }
     }
 
-    public synchronized void unDock(Port port) {
-        if (this.pierce != null) {
-            port.unOccupyPierce(this.pierce);
-            this.pierce = null;
-            System.out.println("Ship №" + this.id + " undocked, load:" + getStats());
-            System.out.println(port.getAllStats());
-            notifyAll();
-        }
+    public synchronized void dockAt(Port port) {
+        port.occupyPierce(this);
+    }
 
+    public synchronized void unDock(Port port) {
+        port.unOccupyPierce(this);
     }
 }

@@ -27,9 +27,14 @@ public class Main {
         Main main = new Main();
         System.out.println(main.getInfo(150));
 
+
+        try {
+            int a = 10 / 0;
+            System.out.println(a);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     }
-
-
 
     public String getInfo () {
         return "info";

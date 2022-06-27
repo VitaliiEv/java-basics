@@ -4,14 +4,15 @@ import java.util.Arrays;
 
 public class Port extends Storage /*implements Runnable*/ {
 
-    private static int id = -1;
+//    private static int id = -1;
+    private String id;
     private int pierceNum;
     private int shipsNum = 0;
     private Pierce[] pierceList;
 
 
     public Port(long capacity, int pierceNum) {
-        super(capacity, id);
+        super(capacity);
         this.cargo = 0;
         this.pierceNum = pierceNum;
         pierceList = new Pierce[pierceNum];
@@ -19,10 +20,14 @@ public class Port extends Storage /*implements Runnable*/ {
     }
 
     public Port(long capacity, long cargo, int pierceNum) {
-        super(capacity, cargo, id);
+        super(capacity, cargo);
         this.pierceNum = pierceNum;
         pierceList = new Pierce[pierceNum];
         initPierce();
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public synchronized void setShipsNum(int shipsNum) {
@@ -41,27 +46,52 @@ public class Port extends Storage /*implements Runnable*/ {
         return pierceList;
     }
 
-    public void occupyPierce(Ship ship, Pierce p) {
-        // todo rework this
-                p.occupy(ship);
-                synchronized (this) {
-                    setShipsNum(this.shipsNum + 1);
+    public void occupyPierce(Ship ship) {
+        Pierce pierce;
+        try {
+            synchronized (this) {
+                while ((pierce = getUnoccupiedPierce()) == null) {
+                    System.out.println("Ship №" + ship.getId() + " waiting for free pierce");
+                    // todo change wait to notify all
+                    wait(1000);
                 }
+//            }
+//            synchronized (this) {
+                setShipsNum(this.shipsNum + 1);
+                ship.setPierce(pierce);
+                pierce.setShip(ship);
+                System.out.println("Ship №" +ship.getId()  + " docked." + getAllStats());
+
+            }
+
+        } catch (UnsupportedOperationException e) {
+            System.out.println(e);
+        } catch (InterruptedException e) {
+            System.out.println(e);
+        }
     }
 
-    public void unOccupyPierce(Pierce p) {
-        p.unOccupy();
-        // todo rework this
-        synchronized (this) {
-            setShipsNum(this.shipsNum - 1);
-            // todo notifiy must be in setShipsNum
-            notifyAll();
-        }
+    public synchronized void unOccupyPierce(Ship ship) {
+        System.out.println("Ship №" + ship.id + " undocked, load:" + ship.getStats());
+        ship.getPierce().setShip(null);
+        ship.setPierce(null);
+        System.out.println(getAllStats());
+        setShipsNum(this.shipsNum - 1);
+    }
+
+    @Deprecated
+    public synchronized void unOccupyPierce(Pierce p) {
+        System.out.println("Ship №" + p.getShip().id + " undocked, load:" + p.getShip().getStats());
+        p.getShip().setPierce(null);
+        p.setShip(null);
+        System.out.println(getAllStats());
+        setShipsNum(this.shipsNum - 1);
     }
 
     public synchronized Pierce getUnoccupiedPierce() {
         // get unoccupied pierce with max loadSpeed
-        if (allPiercesOccupied()) {
+        if (this.shipsNum == this.pierceNum) {
+//        if (Arrays.stream(pierceList).filter(p -> p.getShip() == null).count() == 0) {
             return null;
         } else {
             return Arrays.stream(pierceList).filter(p -> p.getShip() == null).max(Loader::compareLoadSpeed).get();
@@ -83,7 +113,7 @@ public class Port extends Storage /*implements Runnable*/ {
             if (s == null) {
                 stats += "pierce №" + p.getId() + " unoccupied";
             } else {
-                stats += "pierce №" + p.getId() + " - ship №" + s.getId() +" load " + s.getStats();
+                stats += "pierce №" + p.getId() + " - ship №" + s.getId() + " load " + s.getStats();
             }
             if (i == this.pierceNum - 1) {
                 stats += ".";

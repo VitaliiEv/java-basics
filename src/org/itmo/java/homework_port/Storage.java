@@ -10,6 +10,7 @@ public class Storage {
         this.capacity = capacity;
         this.cargo = 0;
         this.isOccupied = false;
+        this.id = id;
     }
 
     public Storage(long capacity, long cargo, int id) {
@@ -18,6 +19,18 @@ public class Storage {
         this.isOccupied = false;
         this.id = id;
     }
+
+    public Storage(long capacity) {
+        this.capacity = capacity;
+        this.cargo = 0;
+        this.isOccupied = false;
+    }
+
+    public Storage(long capacity, long cargo) {
+        this.capacity = capacity;
+        this.cargo = cargo;
+        this.isOccupied = false;
+}
 
     public int getId() {
         return id;
@@ -33,14 +46,14 @@ public class Storage {
 
     public void setCargo(long c, long loaderPause) {
         if (c > this.capacity) {
-            throw new IllegalArgumentException("Storage №" + this.id + ": Cargo cant be more than storage capacity");
+            throw new IllegalArgumentException("Storage " + this.id + ": Cargo cant be more than storage capacity");
         } else if (c < 0) {
-            throw new IllegalArgumentException("Storage №" + this.id + ": Cargo cant be less than zero");
+            throw new IllegalArgumentException("Storage " + this.id + ": Cargo cant be less than zero");
         } else {
             try {
                 synchronized (this) {
                     while (this.isOccupied) {
-                        System.out.println("Storage №" + this.id + ": Cant use storage: storage occupied");
+                        System.out.println("Storage " + this.id + ": Cant use storage: storage occupied");
                         wait();
                     }
                     this.isOccupied = true;

@@ -23,20 +23,15 @@ public class Pierce extends Loader {
         return ship;
     }
 
-    public synchronized void occupy(Ship s) {
+    public synchronized void setShip(Ship ship) {
         try {
-            if (this.ship != null) {
+            if (this.ship != null && ship != null) {
                 throw new UnsupportedOperationException("Pierce " + id + " is already occupied.");
             } else {
-                this.ship = s;
+                this.ship = ship;
             }
         } catch (UnsupportedOperationException e) {
             System.out.println(e);
         }
     }
-
-    public synchronized void unOccupy() {
-        this.ship = null;
-    }
-
 }

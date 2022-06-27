@@ -36,7 +36,7 @@ public class Main {
         PIERCE_SPEED_MIN = 50d; // cargo per second
 
         SHIP_NUM_MAX = 8;
-        SHIP_NUM_MIN = 3;
+        SHIP_NUM_MIN = 4;
         SHIP_CAPACITY_MAX = 50;
         SHIP_CAPACITY_MIN = 30;
         SHIP_CARGO_MAX = 30;
@@ -47,46 +47,63 @@ public class Main {
 
     }
 
+    /**
+     Порт. Корабли заходят в порт для разгрузки загрузки контейнеров. Число контейнеров, находящихся в текущий момент
+     в порту и на корабле, должно быть неотрицательным и превышающим заданную грузоподъемность судна и вместимость порта.
+     В порту работает несколько причалов. У одного причала может стоять один корабль. Корабль может загружаться у причала,
+     разгружаться или выполнять оба действия.
+     */
     public static void main(String[] args) {
 
-
-        Port saintPetersburg = portInit(0);
+        Port port = portInit(0);
+        port.setId("Spb");
         Ship[] ships = shipInit(0);
         ArrayList<Thread> shipsThread = new ArrayList<>();
 
-        for (Ship s : ships) {
-            Thread t = new Thread(() -> {
-                long cargoTask1 = (new Random()).nextInt((int) s.getCargo() - 1) + 1;
-                long cargoTask2 = (new Random()).nextInt((int) s.capacity - TASK_CARGO_MIN) + TASK_CARGO_MIN;
-                System.out.println("Ship №" + s.getId() + " (" + s.getStats() + ") task 1: unload " + cargoTask1 + " cargo from ship to port");
-                System.out.println("Ship №" + s.getId() + " (" + s.getStats() + ") task 2: load " + cargoTask2 + " cargo from port to ship");
-                s.dockAt(saintPetersburg);
+//        Генерируются случайные задания на погрузку и разгрузку кораблей.
+        for (Ship ship : ships) {
+            Thread shipThread = new Thread(() -> {
+                long cargoTask1 = (new Random()).nextInt((int) ship.getCargo() - 1) + 1;
+                long cargoTask2 = (new Random()).nextInt((int) ship.capacity - TASK_CARGO_MIN) + TASK_CARGO_MIN;
+                System.out.println("Ship №" + ship.getId() + " (" + ship.getStats() + ") task 1: unload " + cargoTask1 + " cargo from ship to port");
+                System.out.println("Ship №" + ship.getId() + " (" + ship.getStats() + ") task 2: load " + cargoTask2 + " cargo from port to ship");
+                ship.dockAt(port);
                 // todo sometimes ship is not docked properly
-                // Exception in thread "Thread-2" java.lang.NullPointerException: Cannot invoke "org.itmo.java.homework_port.Loader.loadFromTo(org.itmo.java.homework_port.Storage, org.itmo.java.homework_port.Storage, long)" because the return value of "org.itmo.java.homework_port.Ship.getPierce()" is null
+                // Exception in thread "Thread-2" java.lang.NullPointerException: Cannot invoke
+                // "org.itmo.java.homework_port.Loader.loadFromTo(org.itmo.java.homework_port.Storage, org.itmo.java.homework_port.Storage, long)"
+                // because the return value of "org.itmo.java.homework_port.Ship.getPierce()" is null
                 //	at org.itmo.java.homework_port.Main.lambda$main$0(Main.java:64)
-                s.getPierce().loadFromTo(s, saintPetersburg, cargoTask1);
-                s.getPierce().loadFromTo(saintPetersburg, s, cargoTask2);
-                s.unDock(saintPetersburg);
-
+                ship.getPierce().loadFromTo(ship, port, cargoTask1);
+                ship.getPierce().loadFromTo(port, ship, cargoTask2);
+                ship.unDock(port);
             });
-            shipsThread.add(t);
-            t.start();
+            shipsThread.add(shipThread);
+            shipThread.start();
         }
 
-        Thread port = new Thread(() -> {
-            System.out.println("Entering port thread. " + saintPetersburg.getAllStats());
+        // Supervisor thread
+        Thread portThread = new Thread(() -> {
+            System.out.println("Entering port thread. " + port.getAllStats());
             try {
                 while (getActiveThreads(shipsThread) != 0) {
                     Thread.sleep(2000);
-                    System.out.println("Active ship threads: "+ getActiveThreads(shipsThread)+". " + saintPetersburg.getAllStats());
+                    System.out.println("Active ship threads: "+ getActiveThreads(shipsThread)+". " + port.getAllStats());
                 }
             } catch (InterruptedException e) {
                 System.out.println(e);
             }
         });
-        port.start();
+        portThread.start();
     }
 
+    /**
+     * Генерируется порт со случайным количеством причалов и случайной вместительностю и начальным количеством
+     * груза. У каждого причала своя скорость погрузчика.
+     *
+     * @param option : 0 - for generating port based on MIN values
+     *               : 1 - for generating port based on MAX values
+     *               : any other - for generating port with random fields between MIN and MAX values
+    */
     public static Port portInit(int option) {
         switch (option) {
             case 0:
@@ -129,6 +146,13 @@ public class Main {
         return port;
     }
 
+    /**
+     *   Генерируется случайное количество кораблей, со случайной вместительностю и начальным количеством груза.
+     *
+     * @param option : 0 - for generating ships based on MIN values
+     *               : 1 - for generating ships based on MAX values
+     *               : any other - for generating ships with random fields between MIN and MAX values
+     */
     public static Ship[] shipInit(int option) {
         switch (option) {
             case 0:
