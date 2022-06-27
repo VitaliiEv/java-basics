@@ -83,10 +83,6 @@ public class Port extends Storage {
         }
     }
 
-    public synchronized boolean allPiercesOccupied() {
-        return this.shipsNum == this.pierceNum;
-    }
-
     public synchronized String getAllStats() {
         String stats = "PORT STATS: ships: " + this.shipsNum + "/" + this.pierceNum + ", port load: " + getStats() + "\n" +
                 "Ship stats: ";

@@ -21,7 +21,7 @@ public class Main {
     private static final int SHIP_CARGO_MAX;
     private static final int SHIP_CARGO_MIN;
 
-    private static final int TASK_CARGO_MAX;
+//    private static final int TASK_CARGO_MAX;
     private static final int TASK_CARGO_MIN;
 
     static {
@@ -42,7 +42,7 @@ public class Main {
         SHIP_CARGO_MAX = 30;
         SHIP_CARGO_MIN = 15;
 
-        TASK_CARGO_MAX = 50;
+//        TASK_CARGO_MAX = 50;
         TASK_CARGO_MIN = 10;
 
     }
@@ -68,11 +68,6 @@ public class Main {
                 System.out.println("Ship №" + ship.getId() + " (" + ship.getStats() + ") task 1: unload " + cargoTask1 + " cargo from ship to port");
                 System.out.println("Ship №" + ship.getId() + " (" + ship.getStats() + ") task 2: load " + cargoTask2 + " cargo from port to ship");
                 ship.dockAt(port);
-                // todo sometimes ship is not docked properly
-                // Exception in thread "Thread-2" java.lang.NullPointerException: Cannot invoke
-                // "org.itmo.java.homework_port.Loader.loadFromTo(org.itmo.java.homework_port.Storage, org.itmo.java.homework_port.Storage, long)"
-                // because the return value of "org.itmo.java.homework_port.Ship.getPierce()" is null
-                //	at org.itmo.java.homework_port.Main.lambda$main$0(Main.java:64)
                 ship.getPierce().loadFromTo(ship, port, cargoTask1);
                 ship.getPierce().loadFromTo(port, ship, cargoTask2);
                 ship.unDock(port);
@@ -105,14 +100,11 @@ public class Main {
      *               : any other - for generating port with random fields between MIN and MAX values
     */
     public static Port portInit(int option) {
-        switch (option) {
-            case 0:
-                return portInitMin();
-            case 1:
-                return portInitMax();
-            default:
-                return portInitRandom();
-        }
+        return switch (option) {
+            case 0 -> portInitMin();
+            case 1 -> portInitMax();
+            default -> portInitRandom();
+        };
     }
 
     public static Port portInitRandom() {
@@ -154,14 +146,11 @@ public class Main {
      *               : any other - for generating ships with random fields between MIN and MAX values
      */
     public static Ship[] shipInit(int option) {
-        switch (option) {
-            case 0:
-                return shipInitMin();
-            case 1:
-                return shipInitMax();
-            default:
-                return shipInitRandom();
-        }
+        return switch (option) {
+            case 0 -> shipInitMin();
+            case 1 -> shipInitMax();
+            default -> shipInitRandom();
+        };
 
     }
 
