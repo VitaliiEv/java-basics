@@ -16,33 +16,27 @@ public class Ship extends Storage {
         return pierce;
     }
 
-    public void dockAt(Port port) {
-        try {
-            if (this.pierce != null) {
-                throw new UnsupportedOperationException("Ship " + id + " is already docked.");
-            } else {
-                synchronized (this) {
-                    while (port.allPiercesOccupied()) {
-                        System.out.println("Ship №" + this.id + " waiting for free pierce");
-                        wait();
-                    }
+    public synchronized void dockAt(Port port) {
+        if (this.pierce != null) {
+            throw new UnsupportedOperationException("Ship " + id + " is already docked.");
+        } else {
+            try {
+                //  synchronized (this) {
+                Pierce p;
+                while ( (p = port.getUnoccupiedPierce()) == null) {
+                    System.out.println("Ship №" + this.id + " waiting for free pierce");
+                    //todo rework without sleep
+                    // todo port shoeld tell ships to sleep or to dock
+                    wait(1000);
                 }
-                Pierce p = port.getUnoccupiedPierce();
-                if (p == null) {
-                    throw new UnsupportedOperationException("All pierces occupied");
-                } else {
-                    port.occupyPierce(this, p);
-                    synchronized (this) {
-                        this.pierce = p;
-                    }
-                }
+                this.pierce = p;
+                port.occupyPierce(this, p);
                 System.out.println("Ship №" + this.id + " docked." + port.getAllStats());
+            } catch (UnsupportedOperationException e) {
+                System.out.println(e);
+            } catch (InterruptedException e) {
+                System.out.println(e);
             }
-
-        } catch (UnsupportedOperationException e) {
-            System.out.println(e);
-        } catch (InterruptedException e) {
-            System.out.println(e);
         }
     }
 
@@ -52,7 +46,8 @@ public class Ship extends Storage {
             this.pierce = null;
             System.out.println("Ship №" + this.id + " undocked, load:" + getStats());
             System.out.println(port.getAllStats());
+            notifyAll();
         }
-        notifyAll();
+
     }
 }

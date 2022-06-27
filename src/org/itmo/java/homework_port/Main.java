@@ -1,5 +1,6 @@
 package org.itmo.java.homework_port;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Main {
@@ -31,15 +32,15 @@ public class Main {
 
         PIERCE_NUM_MAX = 5;
         PIERCE_NUM_MIN = 2;
-        PIERCE_SPEED_MAX = 4d;
-        PIERCE_SPEED_MIN = 2d;
+        PIERCE_SPEED_MAX = 100d; // cargo per second
+        PIERCE_SPEED_MIN = 50d; // cargo per second
 
         SHIP_NUM_MAX = 8;
         SHIP_NUM_MIN = 3;
         SHIP_CAPACITY_MAX = 50;
         SHIP_CAPACITY_MIN = 30;
-        SHIP_CARGO_MAX = 15;
-        SHIP_CARGO_MIN = 5;
+        SHIP_CARGO_MAX = 30;
+        SHIP_CARGO_MIN = 15;
 
         TASK_CARGO_MAX = 50;
         TASK_CARGO_MIN = 10;
@@ -51,35 +52,39 @@ public class Main {
 
         Port saintPetersburg = portInit(0);
         Ship[] ships = shipInit(0);
-//        Thread port = new Thread(saintPetersburg);
-        ships[0].setCargo(-1, 100);
-//        ThreadGroup shipGroup = new ThreadGroup("ships");
-//        Thread port = new Thread(() -> {
-//            System.out.println("Port run Thread - " + saintPetersburg.getAllStats());
-//            try {
-//                while (shipGroup.activeCount() != 0) {
-//                    System.out.println("Port run Thread - " + saintPetersburg.getAllStats());
-//                    Thread.sleep(1000);
-//                }
-//            } catch (InterruptedException e) {
-//                System.out.println(e);
-//            }
-//        });
-//
-//        for (Ship s : ships) {
-//            Thread t = new Thread(shipGroup, () -> {
-//                long cargoTask1 = (new Random()).nextInt((int) s.getCargo() - 1) + 1;
-//                long cargoTask2 = (new Random()).nextInt((int) s.capacity - TASK_CARGO_MIN) + TASK_CARGO_MIN;
-//                System.out.println("Ship №" + s.getId() + " (" + s.getStats() + ") task 2: unload " + cargoTask1 + " cargo from ship to port");
-//                System.out.println("Ship №" + s.getId() + " (" + s.getStats() + ") task 1: load " + cargoTask2 + " cargo from port to ship");
-//                s.dockAt(saintPetersburg);
-//                s.getPierce().loadFromTo(s, saintPetersburg, cargoTask1);
-//                s.getPierce().loadFromTo(saintPetersburg, s, cargoTask2);
-//                s.unDock(saintPetersburg);
-//            });
-//            t.start();
-//        }
-//        port.start();
+        ArrayList<Thread> shipsThread = new ArrayList<>();
+
+        for (Ship s : ships) {
+            Thread t = new Thread(() -> {
+                long cargoTask1 = (new Random()).nextInt((int) s.getCargo() - 1) + 1;
+                long cargoTask2 = (new Random()).nextInt((int) s.capacity - TASK_CARGO_MIN) + TASK_CARGO_MIN;
+                System.out.println("Ship №" + s.getId() + " (" + s.getStats() + ") task 1: unload " + cargoTask1 + " cargo from ship to port");
+                System.out.println("Ship №" + s.getId() + " (" + s.getStats() + ") task 2: load " + cargoTask2 + " cargo from port to ship");
+                s.dockAt(saintPetersburg);
+                // todo sometimes ship is not docked properly
+                // Exception in thread "Thread-2" java.lang.NullPointerException: Cannot invoke "org.itmo.java.homework_port.Loader.loadFromTo(org.itmo.java.homework_port.Storage, org.itmo.java.homework_port.Storage, long)" because the return value of "org.itmo.java.homework_port.Ship.getPierce()" is null
+                //	at org.itmo.java.homework_port.Main.lambda$main$0(Main.java:64)
+                s.getPierce().loadFromTo(s, saintPetersburg, cargoTask1);
+                s.getPierce().loadFromTo(saintPetersburg, s, cargoTask2);
+                s.unDock(saintPetersburg);
+
+            });
+            shipsThread.add(t);
+            t.start();
+        }
+
+        Thread port = new Thread(() -> {
+            System.out.println("Entering port thread. " + saintPetersburg.getAllStats());
+            try {
+                while (getActiveThreads(shipsThread) != 0) {
+                    Thread.sleep(2000);
+                    System.out.println("Active ship threads: "+ getActiveThreads(shipsThread)+". " + saintPetersburg.getAllStats());
+                }
+            } catch (InterruptedException e) {
+                System.out.println(e);
+            }
+        });
+        port.start();
     }
 
     public static Port portInit(int option) {
@@ -164,5 +169,9 @@ public class Main {
             ships[i] = new Ship(SHIP_CAPACITY_MIN, SHIP_CARGO_MIN, i);
         }
         return ships;
+    }
+
+    public static int getActiveThreads(ArrayList<Thread> t) {
+        return (int) t.stream().filter(Thread::isAlive).count();
     }
 }

@@ -25,19 +25,6 @@ public class Port extends Storage /*implements Runnable*/ {
         initPierce();
     }
 
-//    @Override
-//    public void run() {
-//        System.out.println("Port run Thread -"+this.getAllStats());
-//        try {
-//            while (!this.allPiercesFree()) {
-//                System.out.println(this.getAllStats());
-//                Thread.sleep(1000);
-//            }
-//        } catch (InterruptedException e) {
-//            System.out.println(e);
-//        }
-//    }
-
     public synchronized void setShipsNum(int shipsNum) {
         try {
             if ((shipsNum < 0) || (shipsNum > this.pierceNum)) {
@@ -55,6 +42,7 @@ public class Port extends Storage /*implements Runnable*/ {
     }
 
     public void occupyPierce(Ship ship, Pierce p) {
+        // todo rework this
                 p.occupy(ship);
                 synchronized (this) {
                     setShipsNum(this.shipsNum + 1);
@@ -63,28 +51,25 @@ public class Port extends Storage /*implements Runnable*/ {
 
     public void unOccupyPierce(Pierce p) {
         p.unOccupy();
+        // todo rework this
         synchronized (this) {
             setShipsNum(this.shipsNum - 1);
+            // todo notifiy must be in setShipsNum
             notifyAll();
         }
     }
 
     public synchronized Pierce getUnoccupiedPierce() {
         // get unoccupied pierce with max loadSpeed
-        if (Arrays.stream(pierceList).filter(p -> p.getShip() == null).count() == 0) {
+        if (allPiercesOccupied()) {
             return null;
         } else {
             return Arrays.stream(pierceList).filter(p -> p.getShip() == null).max(Loader::compareLoadSpeed).get();
         }
-
     }
 
     public synchronized boolean allPiercesOccupied() {
         return this.shipsNum == this.pierceNum;
-    }
-
-    public synchronized boolean allPiercesFree() {
-        return this.shipsNum == 0;
     }
 
     public String getAllStats() {
