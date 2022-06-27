@@ -26,14 +26,14 @@ public class Main {
 
     static {
         PORT_CAPACITY_MAX = 300;
-        PORT_CAPACITY_MIN = 200;
+        PORT_CAPACITY_MIN = 100;
         PORT_CARGO_MAX = 180;
         PORT_CARGO_MIN = 100;
 
         PIERCE_NUM_MAX = 5;
         PIERCE_NUM_MIN = 2;
-        PIERCE_SPEED_MAX = 100d; // cargo per second
-        PIERCE_SPEED_MIN = 50d; // cargo per second
+        PIERCE_SPEED_MAX = 10d; // cargo per second
+        PIERCE_SPEED_MIN = 1d; // cargo per second
 
         SHIP_NUM_MAX = 8;
         SHIP_NUM_MIN = 4;
@@ -55,9 +55,9 @@ public class Main {
      */
     public static void main(String[] args) {
 
-        Port port = portInit(0);
+        Port port = portInit(-1);
         port.setId("Spb");
-        Ship[] ships = shipInit(0);
+        Ship[] ships = shipInit(-1);
         ArrayList<Thread> shipsThread = new ArrayList<>();
 
 //        Генерируются случайные задания на погрузку и разгрузку кораблей.
