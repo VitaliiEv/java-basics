@@ -7,12 +7,12 @@ public class Ship extends Storage {
         super(capacity, id);
     }
 
-    public Ship(long capacity, long cargo, int id) {
+    public Ship(long capacity, long cargo, String id) {
         super(capacity, cargo, id);
     }
 
 
-    public Pierce getPierce() {
+    public synchronized Pierce getPierce() {
         return pierce;
     }
 

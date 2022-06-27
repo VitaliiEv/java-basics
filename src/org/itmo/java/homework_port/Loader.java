@@ -45,7 +45,7 @@ public class Loader /*Implements Runnable*/ {
                 break; // no need to continue task if one of storages is full or empty
             }
         }
-        System.out.println("Task finished: moved " + i +"/"+ cargo + " cargo from storage №" + from.getId() + " to storage №" + to.getId() + ".");
+        System.out.println("Task finished: moved " + i +"/"+ cargo + " cargo from storage " + from.getId() + " to storage " + to.getId() + ".");
     }
 
     private long calculatePause(double loadSpeed) {

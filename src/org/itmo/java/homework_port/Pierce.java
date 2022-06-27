@@ -19,7 +19,7 @@ public class Pierce extends Loader {
         return id;
     }
 
-    public Ship getShip() {
+    public synchronized Ship getShip() {
         return ship;
     }
 

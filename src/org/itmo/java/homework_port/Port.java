@@ -2,14 +2,12 @@ package org.itmo.java.homework_port;
 
 import java.util.Arrays;
 
-public class Port extends Storage /*implements Runnable*/ {
+public class Port extends Storage {
 
-//    private static int id = -1;
     private String id;
     private int pierceNum;
     private int shipsNum = 0;
     private Pierce[] pierceList;
-
 
     public Port(long capacity, int pierceNum) {
         super(capacity);
@@ -24,10 +22,6 @@ public class Port extends Storage /*implements Runnable*/ {
         this.pierceNum = pierceNum;
         pierceList = new Pierce[pierceNum];
         initPierce();
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public synchronized void setShipsNum(int shipsNum) {
@@ -75,17 +69,8 @@ public class Port extends Storage /*implements Runnable*/ {
         System.out.println("Ship №" + ship.id + " undocked, load:" + ship.getStats());
         ship.getPierce().setShip(null);
         ship.setPierce(null);
-        System.out.println(getAllStats());
         setShipsNum(this.shipsNum - 1);
-    }
-
-    @Deprecated
-    public synchronized void unOccupyPierce(Pierce p) {
-        System.out.println("Ship №" + p.getShip().id + " undocked, load:" + p.getShip().getStats());
-        p.getShip().setPierce(null);
-        p.setShip(null);
         System.out.println(getAllStats());
-        setShipsNum(this.shipsNum - 1);
     }
 
     public synchronized Pierce getUnoccupiedPierce() {
@@ -102,7 +87,7 @@ public class Port extends Storage /*implements Runnable*/ {
         return this.shipsNum == this.pierceNum;
     }
 
-    public String getAllStats() {
+    public synchronized String getAllStats() {
         String stats = "PORT STATS: ships: " + this.shipsNum + "/" + this.pierceNum + ", port load: " + getStats() + "\n" +
                 "Ship stats: ";
         Pierce p;

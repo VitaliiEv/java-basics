@@ -1,19 +1,19 @@
 package org.itmo.java.homework_port;
 
 public class Storage {
-    protected int id;
+    protected String id;
     protected long capacity;
     protected long cargo;
     protected boolean isOccupied;
 
-    public Storage(long capacity, int id) {
+    public Storage(long capacity, String id) {
         this.capacity = capacity;
         this.cargo = 0;
         this.isOccupied = false;
         this.id = id;
     }
 
-    public Storage(long capacity, long cargo, int id) {
+    public Storage(long capacity, long cargo, String id) {
         this.capacity = capacity;
         this.cargo = cargo;
         this.isOccupied = false;
@@ -32,8 +32,12 @@ public class Storage {
         this.isOccupied = false;
 }
 
-    public int getId() {
+    public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getStats() {

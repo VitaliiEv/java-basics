@@ -174,7 +174,7 @@ public class Main {
         for (int i = 0; i < shipNum; i++) {
             shipCapacity = random.nextInt(SHIP_CAPACITY_MAX - SHIP_CAPACITY_MIN) + SHIP_CAPACITY_MIN;
             shipCargo = random.nextInt(SHIP_CARGO_MAX - SHIP_CARGO_MIN) + SHIP_CARGO_MIN;
-            ships[i] = new Ship(shipCapacity, shipCargo, i);
+            ships[i] = new Ship(shipCapacity, shipCargo, String.valueOf(i));
         }
         return ships;
     }
@@ -182,7 +182,7 @@ public class Main {
     public static Ship[] shipInitMax() {
         Ship[] ships = new Ship[SHIP_NUM_MAX];
         for (int i = 0; i < SHIP_NUM_MAX; i++) {
-            ships[i] = new Ship(SHIP_CAPACITY_MAX, SHIP_CARGO_MAX, i);
+            ships[i] = new Ship(SHIP_CAPACITY_MAX, SHIP_CARGO_MAX, String.valueOf(i));
         }
         return ships;
     }
@@ -190,7 +190,7 @@ public class Main {
     public static Ship[] shipInitMin() {
         Ship[] ships = new Ship[SHIP_NUM_MIN];
         for (int i = 0; i < SHIP_NUM_MIN; i++) {
-            ships[i] = new Ship(SHIP_CAPACITY_MIN, SHIP_CARGO_MIN, i);
+            ships[i] = new Ship(SHIP_CAPACITY_MIN, SHIP_CARGO_MIN, String.valueOf(i));
         }
         return ships;
     }
