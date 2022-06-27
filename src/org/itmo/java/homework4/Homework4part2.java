@@ -8,19 +8,19 @@ public class Homework4part2 {
     public static void main(String[] args) {
 //   Напишите программу, которая проверяет отсортирован ли массив по возрастанию. Если он отсортирован по возрастанию
 //   то выводится “OK”, если нет, то будет выводиться текст “Please, try again”
-        int[] array = {3, -3, 7, 4, 5, 4, 3};
+        int[] array = {3, -3, 7, 4, 5, 4, 6};
         isSorted(array);
 //      Напишите программу, которая считывает с клавиатуры длину массива (например, пользователь вводит цифру 4),
 //      затем пользователь вводит 4 числа и на новой строке выводится массив из 4 элементов. Пример вывода:
-        int[] array2 = arrayBuild();
-        isSorted(array2);
+//        int[] array2 = arrayBuild();
+//        isSorted(array2);
 
 //      Напишите метод, который меняет местами первый и последний элемент массива. Пример вывода:
-        switchFirstLast(array2);
+        switchFirstLast(array);
 
 //      Дан массив чисел. Найдите первое уникальное в этом массиве число.
 //      Например, для массива [1, 2, 3, 1, 2, 4] это число 3.
-        int[] array3 = {-3, -3, 7, 4, 7, 4, 3};
+        int[] array3 = {10, -3, 7, 4, 7, 4, 3};
         System.out.println(Arrays.toString(array3));
         firstUnique(array3);
 
@@ -59,26 +59,23 @@ public class Homework4part2 {
     }
 
     public static void firstUnique(int[] array) {
-        int unique = -1;
+//        int unique = -1;
         int index = -1;
         for (int i = 0; i < array.length-1; i++) {
+            index = i;
             for (int j = i+1; j < array.length; j++) {
                 if (array[i] == array[j]) {
                     break;
                 } else if (j == array.length - 1) {
-                    unique = array[i];
-                    index = i;
+                    index = j;
                     break;
                 }
             }
-            if (unique != -1) {
-                break;
-            }
         }
-        if (unique == -1)
+        if (index == -1)
             System.out.println("No unique");
         else {
-            System.out.println("Unique number " + unique + " at position " + index);
+            System.out.println("Unique number " + array[index] + " at position " + index);
         }
 
     }
