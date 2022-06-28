@@ -21,7 +21,7 @@ public class Main {
     private static final int SHIP_CARGO_MAX;
     private static final int SHIP_CARGO_MIN;
 
-//    private static final int TASK_CARGO_MAX;
+    //    private static final int TASK_CARGO_MAX;
     private static final int TASK_CARGO_MIN;
 
     static {
@@ -48,10 +48,12 @@ public class Main {
     }
 
     /**
-     Порт. Корабли заходят в порт для разгрузки загрузки контейнеров. Число контейнеров, находящихся в текущий момент
-     в порту и на корабле, должно быть неотрицательным и превышающим заданную грузоподъемность судна и вместимость порта.
-     В порту работает несколько причалов. У одного причала может стоять один корабль. Корабль может загружаться у причала,
-     разгружаться или выполнять оба действия.
+     * Порт. Корабли заходят в порт для разгрузки загрузки контейнеров. Число контейнеров, находящихся в текущий момент
+     * в порту и на корабле, должно быть неотрицательным и превышающим заданную грузоподъемность судна и вместимость
+     * порта.
+     * В порту работает несколько причалов. У одного причала может стоять один корабль. Корабль может загружаться у
+     * причала,
+     * разгружаться или выполнять оба действия.
      */
     public static void main(String[] args) {
 
@@ -82,7 +84,7 @@ public class Main {
             try {
                 while (getActiveThreads(shipsThread) != 0) {
                     Thread.sleep(2000);
-                    System.out.println("Active ship threads: "+ getActiveThreads(shipsThread)+". " + port.getAllStats());
+                    System.out.println("Active ship threads: " + getActiveThreads(shipsThread) + ". " + port.getAllStats());
                 }
             } catch (InterruptedException e) {
                 System.out.println(e);
@@ -98,13 +100,16 @@ public class Main {
      * @param option : 0 - for generating port based on MIN values
      *               : 1 - for generating port based on MAX values
      *               : any other - for generating port with random fields between MIN and MAX values
-    */
+     */
     public static Port portInit(int option) {
-        return switch (option) {
-            case 0 -> portInitMin();
-            case 1 -> portInitMax();
-            default -> portInitRandom();
-        };
+        switch (option) {
+            case 0:
+                return portInitMin();
+            case 1:
+                return portInitMax();
+            default:
+                return portInitRandom();
+        }
     }
 
     public static Port portInitRandom() {
@@ -116,8 +121,10 @@ public class Main {
         Port port = new Port(portCapacity, portCargo, pierceNum);
         double newLoadSpeed;
         for (Pierce p : port.getPierceList()) {
-            newLoadSpeed = random.nextDouble(PIERCE_SPEED_MAX - PIERCE_SPEED_MIN) + PIERCE_SPEED_MIN;
+//            newLoadSpeed = random.nextDouble(PIERCE_SPEED_MAX - PIERCE_SPEED_MIN) + PIERCE_SPEED_MIN;
+            newLoadSpeed = random.nextDouble() * (PIERCE_SPEED_MAX - PIERCE_SPEED_MIN) + PIERCE_SPEED_MIN;
             p.setLoadSpeed(newLoadSpeed);
+
         }
         return port;
     }
@@ -132,26 +139,28 @@ public class Main {
 
     public static Port portInitMax() {
         Port port = new Port(PORT_CAPACITY_MAX, PORT_CARGO_MAX, PIERCE_NUM_MAX);
-         for (Pierce p : port.getPierceList()) {
+        for (Pierce p : port.getPierceList()) {
             p.setLoadSpeed(PIERCE_SPEED_MAX);
         }
         return port;
     }
 
     /**
-     *   Генерируется случайное количество кораблей, со случайной вместительностю и начальным количеством груза.
+     * Генерируется случайное количество кораблей, со случайной вместительностю и начальным количеством груза.
      *
      * @param option : 0 - for generating ships based on MIN values
      *               : 1 - for generating ships based on MAX values
      *               : any other - for generating ships with random fields between MIN and MAX values
      */
     public static Ship[] shipInit(int option) {
-        return switch (option) {
-            case 0 -> shipInitMin();
-            case 1 -> shipInitMax();
-            default -> shipInitRandom();
-        };
-
+        switch (option) {
+            case 0:
+                return shipInitMin();
+            case 1:
+                return shipInitMax();
+            default:
+                return shipInitRandom();
+        }
     }
 
     public static Ship[] shipInitRandom() {
