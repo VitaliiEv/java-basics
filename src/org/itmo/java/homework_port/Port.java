@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 public class Port extends Storage {
 
-    private String id;
     private int pierceNum;
     private int shipsNum = 0;
     private Pierce[] pierceList;
@@ -54,7 +53,7 @@ public class Port extends Storage {
                 setShipsNum(this.shipsNum + 1);
                 ship.setPierce(pierce);
                 pierce.setShip(ship);
-                System.out.println("Ship №" +ship.getId()  + " docked." + getAllStats());
+                System.out.println("Ship №" + ship.getId() + " docked. " + getAllStats());
 
             }
 
@@ -66,7 +65,7 @@ public class Port extends Storage {
     }
 
     public synchronized void unOccupyPierce(Ship ship) {
-        System.out.println("Ship №" + ship.id + " undocked, load:" + ship.getStats());
+        System.out.println("Ship №" + ship.getId() + " undocked, load:" + ship.getStats());
         ship.getPierce().setShip(null);
         ship.setPierce(null);
         setShipsNum(this.shipsNum - 1);
@@ -75,34 +74,39 @@ public class Port extends Storage {
 
     public synchronized Pierce getUnoccupiedPierce() {
         // get unoccupied pierce with max loadSpeed
+
         if (this.shipsNum == this.pierceNum) {
 //        if (Arrays.stream(pierceList).filter(p -> p.getShip() == null).count() == 0) {
             return null;
         } else {
-            return Arrays.stream(pierceList).filter(p -> p.getShip() == null).max(Loader::compareLoadSpeed).get();
+            return Arrays.stream(pierceList)
+                    .filter(p -> p.getShip() == null)
+                    .max(Loader::compareLoadSpeed)
+                    .get();
         }
     }
 
     public synchronized String getAllStats() {
-        String stats = "PORT STATS: ships: " + this.shipsNum + "/" + this.pierceNum + ", port load: " + getStats() + "\n" +
-                "Ship stats: ";
+        StringBuilder stats = new StringBuilder("PORT STATS: ships: " + this.shipsNum + "/" + this.pierceNum +
+                ", port load: " + getStats() + "\n" + "Ship stats: ");
         Pierce p;
         Ship s;
         for (int i = 0; i < this.pierceNum; i++) {
             p = this.pierceList[i];
             s = p.getShip();
+            stats.append("pierce №").append(p.getId());
             if (s == null) {
-                stats += "pierce №" + p.getId() + " unoccupied";
+                stats.append(" unoccupied");
             } else {
-                stats += "pierce №" + p.getId() + " - ship №" + s.getId() + " load " + s.getStats();
+                stats.append(" - ship №").append(s.getId()).append(" load ").append(s.getStats());
             }
             if (i == this.pierceNum - 1) {
-                stats += ".";
+                stats.append(".");
             } else {
-                stats += ", ";
+                stats.append(", ");
             }
         }
-        return stats;
+        return String.valueOf(stats);
     }
 
     private void initPierce() {
