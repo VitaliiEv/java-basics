@@ -79,8 +79,7 @@ public class Homework5 {
             currentIndex += censoredLength; // пересчитываем индекс первого вхождения с учетом длины censored
             badWordIndex = tempStr.indexOf(badWord);
         }
-        str = String.valueOf(strNew);
-        return str;
+        return String.valueOf(strNew);
     }
 
     public static int countSubstring(String str, String subStr) {
