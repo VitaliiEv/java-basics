@@ -3,6 +3,7 @@ package org.itmo.java.homework_port.init;
 import org.itmo.java.homework_port.Pierce;
 import org.itmo.java.homework_port.Port;
 import org.itmo.java.homework_port.Ship;
+import org.itmo.java.homework_port.ShipTask;
 
 import java.util.Random;
 
@@ -39,31 +40,10 @@ public class PortInitImplRandom implements PortInit {
         return ships;
     }
 
-//    public void taskInit(Ship[] ships) {
-//        for (Ship ship : ships) {
-//
-//
-//                long cargoTask1 = (long) random.nextInt((int) ship.getCargo() - 1) + 1;
-//                long cargoTask2 = (long) random.nextInt((int) ship.capacity - TASK_CARGO_MIN) + TASK_CARGO_MIN;
-//                System.out.println("Ship №" + ship.getId() + " (" + ship.getStats() + ") task 1: unload " + cargoTask1 + " cargo from ship to port");
-//                System.out.println("Ship №" + ship.getId() + " (" + ship.getStats() + ") task 2: load " + cargoTask2 + " cargo from port to ship");
-//                ship.dockAt(port);
-//                ship.getPierce().loadFromTo(ship, port, cargoTask1);
-//                ship.getPierce().loadFromTo(port, ship, cargoTask2);
-//                ship.unDock(port);
-//
-//        }
-//
-//        int shipNum = random.nextInt(SHIP_NUM_MAX - SHIP_NUM_MIN) + SHIP_NUM_MIN;
-//        int shipCapacity;
-//        int shipCargo;
-//        Ship[] ships = new Ship[shipNum];
-//        for (int i = 0; i < shipNum; i++) {
-//            shipCapacity = random.nextInt(SHIP_CAPACITY_MAX - SHIP_CAPACITY_MIN) + SHIP_CAPACITY_MIN;
-//            shipCargo = random.nextInt(SHIP_CARGO_MAX - SHIP_CARGO_MIN) + SHIP_CARGO_MIN;
-//            ships[i] = new Ship(shipCapacity, shipCargo, String.valueOf(i));
-//        }
-//
-//    }
+    @Override
+    public Ship[] taskInit(Port port, Ship[] ships) {
+        //todo
+        return null;
+    }
 
 }

@@ -22,4 +22,14 @@ public class ShipTask implements Runnable {
             ship.getPierce().loadFromTo(port, ship, cargoTask2);
             ship.unDock(port);
     }
+
+    @Override
+    public String toString() {
+        //todo to string
+//        System.out.println("Ship №" + ship.getId() + " (" + ship.getStats() + ") task 1: unload " + cargoTask1 +
+//                " cargo from ship to port");
+//        System.out.println("Ship №" + ship.getId() + " (" + ship.getStats() + ") task 2: load " + cargoTask2 + " " +
+//                "cargo from port to ship");
+        return String.valueOf(this);
+    }
 }

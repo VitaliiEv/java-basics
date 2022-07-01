@@ -74,7 +74,6 @@ public class Port extends Storage {
 
     public synchronized Pierce getUnoccupiedPierce() {
         // get unoccupied pierce with max loadSpeed
-
         if (this.shipsNum == this.pierceNum) {
 //        if (Arrays.stream(pierceList).filter(p -> p.getShip() == null).count() == 0) {
             return null;

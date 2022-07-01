@@ -23,4 +23,10 @@ public class PortInitImplMax implements PortInit {
         }
         return ships;
     }
+
+    @Override
+    public Ship[] taskInit(Port port, Ship[] ships) {
+        //todo
+        return null;
+    }
 }

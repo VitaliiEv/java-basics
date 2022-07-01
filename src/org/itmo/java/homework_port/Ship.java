@@ -12,7 +12,6 @@ public class Ship extends Storage {
         super(capacity, cargo, id);
     }
 
-
     public synchronized Pierce getPierce() {
         return pierce;
     }
@@ -33,11 +32,11 @@ public class Ship extends Storage {
         return shipTask;
     }
 
-    public void setShipTask(ShipTask shipTask) {
-        if (shipTask == null) {
-            throw new NullPointerException("Cannot set empty task to ship");
+    public void setShipTask(Port port, long cargoTask1, long cargoTask2) {
+        if (port == null) {
+            throw new NullPointerException("Ship should have destination port");
         } else {
-            this.shipTask = shipTask;
+            this.shipTask = new ShipTask(port, this, cargoTask1, cargoTask2);
         }
     }
 

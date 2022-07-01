@@ -10,7 +10,7 @@ public class Main {
 
     //    private static final int TASK_CARGO_MAX;
     private static final int TASK_CARGO_MIN;
-// todo Delete whis from main
+    // todo Delete whis from main
     private static final Random random = new Random();
 
     static {
@@ -30,19 +30,12 @@ public class Main {
      */
     public static void main(String[] args) {
 
-        Port port = (new PortInitImplMin().portInit());
+        Port port = (new PortInitImplMin()).portInit();
         port.setId("Spb");
         System.out.println(port.getStats());
-        Ship[] ships = (new PortInitImplMin().shipInit());
-
+        Ship[] ships = (new PortInitImplMin()).shipInit();
 //        Генерируются случайные задания на погрузку и разгрузку кораблей.
-        for (Ship ship : ships) {
-                long cargoTask1 = (long) random.nextInt((int) ship.getCargo() - 1) + 1;
-                long cargoTask2 = (long) random.nextInt((int) ship.capacity - TASK_CARGO_MIN) + TASK_CARGO_MIN;
-                System.out.println("Ship №" + ship.getId() + " (" + ship.getStats() + ") task 1: unload " + cargoTask1 + " cargo from ship to port");
-                System.out.println("Ship №" + ship.getId() + " (" + ship.getStats() + ") task 2: load " + cargoTask2 + " cargo from port to ship");
-                ship.setShipTask(new ShipTask( port, ship,cargoTask1, cargoTask2));
-        }
+        ships = (new PortInitImplReasonable()).taskInit(port, ships);
 
         List<Thread> shipsThread = new ArrayList<>();
         for (Ship ship : ships) {

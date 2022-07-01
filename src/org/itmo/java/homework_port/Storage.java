@@ -40,12 +40,16 @@ public class Storage {
         this.id = id;
     }
 
-    public String getStats() {
-        return this.cargo + "/" + this.capacity;
+    public long getCapacity() {
+        return capacity;
     }
 
     public synchronized long getCargo() {
         return this.cargo;
+    }
+
+    public String getStats() {
+        return this.cargo + "/" + this.capacity;
     }
 
     public void setCargo(long c, long loaderPause) {

@@ -27,6 +27,6 @@ public interface PortInit {
 
     Ship[] shipInit();
 
-//    Port taskInit();
+    Ship[] taskInit(Port port, Ship[] ships);
 
 }
