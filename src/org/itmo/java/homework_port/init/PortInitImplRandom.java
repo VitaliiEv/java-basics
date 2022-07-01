@@ -42,8 +42,14 @@ public class PortInitImplRandom implements PortInit {
 
     @Override
     public Ship[] taskInit(Port port, Ship[] ships) {
-        //todo
-        return null;
+        for (Ship ship : ships) {
+            long cargoTask1 =
+                    (long) random.nextInt((int) Math.max(ship.getCargo(),TASK_CARGO_MAX) - TASK_CARGO_MIN) + TASK_CARGO_MIN;
+            long cargoTask2 = (long) random.nextInt(TASK_CARGO_MAX - TASK_CARGO_MIN) + TASK_CARGO_MIN;
+            ship.setShipTask(port, cargoTask1, cargoTask2);
+            System.out.println(ship.getShipTask().toString());
+        }
+        return ships;
     }
 
 }

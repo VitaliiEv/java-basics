@@ -4,21 +4,8 @@ import org.itmo.java.homework_port.init.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class Main {
-
-    //    private static final int TASK_CARGO_MAX;
-    private static final int TASK_CARGO_MIN;
-    // todo Delete whis from main
-    private static final Random random = new Random();
-
-    static {
-
-//       TASK_CARGO_MAX = 50;
-        TASK_CARGO_MIN = 10;
-
-    }
 
     /**
      * Порт. Корабли заходят в порт для разгрузки загрузки контейнеров. Число контейнеров, находящихся в текущий момент
@@ -30,12 +17,11 @@ public class Main {
      */
     public static void main(String[] args) {
 
-        Port port = (new PortInitImplMin()).portInit();
+        Port port = (new PortInitImplRandom()).portInit();
         port.setId("Spb");
-        System.out.println(port.getStats());
-        Ship[] ships = (new PortInitImplMin()).shipInit();
-//        Генерируются случайные задания на погрузку и разгрузку кораблей.
-        ships = (new PortInitImplReasonable()).taskInit(port, ships);
+        System.out.println(port.getAllStats());
+        Ship[] ships = (new PortInitImplRandom()).shipInit();
+        (new PortInitImplReasonable()).taskInit(port, ships);
 
         List<Thread> shipsThread = new ArrayList<>();
         for (Ship ship : ships) {

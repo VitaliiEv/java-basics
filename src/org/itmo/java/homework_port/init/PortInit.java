@@ -20,7 +20,7 @@ public interface PortInit {
     int SHIP_CAPACITY_MIN = 30;
     int SHIP_CARGO_MAX = 30;
     int SHIP_CARGO_MIN = 15;
-    int TASK_CARGO_MAx = 50;
+    int TASK_CARGO_MAX = 50;
     int TASK_CARGO_MIN = 10;
 
     Port portInit();

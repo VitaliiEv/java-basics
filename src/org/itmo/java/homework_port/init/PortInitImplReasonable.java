@@ -42,15 +42,11 @@ public class PortInitImplReasonable implements PortInit {
 
     @Override
     public Ship[] taskInit(Port port, Ship[] ships) {
-        // todo this is not random, this is reasonable
         for (Ship ship : ships) {
             long cargoTask1 = (long) random.nextInt((int) ship.getCargo() - 1) + 1;
             long cargoTask2 = (long) random.nextInt((int) ship.getCapacity() - TASK_CARGO_MIN) + TASK_CARGO_MIN;
             ship.setShipTask(port, cargoTask1, cargoTask2);
-            System.out.println("Ship №" + ship.getId() + " (" + ship.getStats() + ") task 1: unload " + cargoTask1 +
-                    " cargo from ship to port");
-            System.out.println("Ship №" + ship.getId() + " (" + ship.getStats() + ") task 2: load " + cargoTask2 + " " +
-                    "cargo from port to ship");
+            System.out.println(ship.getShipTask().toString());
         }
         return ships;
     }

@@ -8,7 +8,6 @@ public class ShipTask implements Runnable {
 
 
     public ShipTask(Port port, Ship ship, long cargoTask1, long cargoTask2) {
-        // todo add exceptions
         this.port = port;
         this.ship = ship;
         this.cargoTask1 = cargoTask1;
@@ -25,11 +24,23 @@ public class ShipTask implements Runnable {
 
     @Override
     public String toString() {
-        //todo to string
-//        System.out.println("Ship №" + ship.getId() + " (" + ship.getStats() + ") task 1: unload " + cargoTask1 +
-//                " cargo from ship to port");
-//        System.out.println("Ship №" + ship.getId() + " (" + ship.getStats() + ") task 2: load " + cargoTask2 + " " +
-//                "cargo from port to ship");
-        return String.valueOf(this);
+        StringBuilder str = new StringBuilder();
+        str.append("Ship №")
+                .append(this.ship.getId())
+                .append(" (")
+                .append(this.ship.getStats())
+                .append(") task 1: unload ")
+                .append(this.cargoTask1)
+                .append(" cargo from ship to port.")
+                .append(System.getProperty("line.separator"));
+        str.append("Ship №")
+                .append(this.ship.getId())
+                .append(" (")
+                .append(this.ship.getStats())
+                .append(") task 2: load ")
+                .append(this.cargoTask2)
+                .append(" cargo from port to ship.")
+                .append(System.getProperty("line.separator"));
+        return String.valueOf(str);
     }
 }
