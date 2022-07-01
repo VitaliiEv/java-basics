@@ -32,23 +32,23 @@ public class Main {
 
         Port port = (new PortInitImplMin().portInit());
         port.setId("Spb");
+        System.out.println(port.getStats());
         Ship[] ships = (new PortInitImplMin().shipInit());
-        List<Thread> shipsThread = new ArrayList<>();
 
 //        Генерируются случайные задания на погрузку и разгрузку кораблей.
         for (Ship ship : ships) {
-            Thread shipThread = new Thread(() -> {
                 long cargoTask1 = (long) random.nextInt((int) ship.getCargo() - 1) + 1;
                 long cargoTask2 = (long) random.nextInt((int) ship.capacity - TASK_CARGO_MIN) + TASK_CARGO_MIN;
                 System.out.println("Ship №" + ship.getId() + " (" + ship.getStats() + ") task 1: unload " + cargoTask1 + " cargo from ship to port");
                 System.out.println("Ship №" + ship.getId() + " (" + ship.getStats() + ") task 2: load " + cargoTask2 + " cargo from port to ship");
-                ship.dockAt(port);
-                ship.getPierce().loadFromTo(ship, port, cargoTask1);
-                ship.getPierce().loadFromTo(port, ship, cargoTask2);
-                ship.unDock(port);
-            });
-            shipsThread.add(shipThread);
-            shipThread.start();
+                ship.setShipTask(new ShipTask( port, ship,cargoTask1, cargoTask2));
+        }
+
+        List<Thread> shipsThread = new ArrayList<>();
+        for (Ship ship : ships) {
+            Thread task = new Thread(ship.getShipTask());
+            shipsThread.add(task);
+            task.start();
         }
 
         // Supervisor thread

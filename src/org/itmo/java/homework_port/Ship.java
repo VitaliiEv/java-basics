@@ -2,6 +2,7 @@ package org.itmo.java.homework_port;
 
 public class Ship extends Storage {
     private Pierce pierce;
+    private ShipTask shipTask;
 
     public Ship(long capacity, int id) {
         super(capacity, id);
@@ -25,6 +26,18 @@ public class Ship extends Storage {
             }
         } catch (UnsupportedOperationException e) {
             System.out.println(e);
+        }
+    }
+
+    public ShipTask getShipTask() {
+        return shipTask;
+    }
+
+    public void setShipTask(ShipTask shipTask) {
+        if (shipTask == null) {
+            throw new NullPointerException("Cannot set empty task to ship");
+        } else {
+            this.shipTask = shipTask;
         }
     }
 
