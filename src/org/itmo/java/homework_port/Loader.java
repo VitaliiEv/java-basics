@@ -28,10 +28,9 @@ public class Loader /*Implements Runnable*/ {
     }
 
     public void loadFromTo(Storage from, Storage to, long cargo) {
-        //todo add exceptions for arguments
         int i;
         for (i = 0; i < cargo; i++) {
-            // todo nested try catch
+
             try {
                 from.setCargo(from.getCargo() - 1, this.pause / 2);
             } catch (IllegalArgumentException e) {

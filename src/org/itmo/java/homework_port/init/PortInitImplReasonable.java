@@ -43,7 +43,7 @@ public class PortInitImplReasonable implements PortInit {
             long cargoTask1 = (long) random.nextInt((int) ship.getCargo() - 1) + 1;
             long cargoTask2 = (long) random.nextInt((int) ship.getCapacity() - TASK_CARGO_MIN) + TASK_CARGO_MIN;
             ship.setShipTask(port, cargoTask1, cargoTask2);
-            System.out.println(ship.getShipTask().toString());
+            System.out.print(ship.getShipTask().toString());
         }
         return ships;
     }

@@ -30,7 +30,7 @@ public class PortInitImplMin implements PortInit {
             long cargoTask1 = TASK_CARGO_MIN;
             long cargoTask2 = TASK_CARGO_MIN;
             ship.setShipTask(port, cargoTask1, cargoTask2);
-            System.out.println(ship.getShipTask().toString());
+            System.out.print(ship.getShipTask().toString());
         }
         return ships;
     }

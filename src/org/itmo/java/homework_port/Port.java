@@ -1,20 +1,15 @@
 package org.itmo.java.homework_port;
 
+import org.omg.CosNaming.NamingContextPackage.NotFound;
+
 import java.util.Arrays;
+import java.util.Optional;
 
 public class Port extends Storage {
 
-    private int pierceNum;
+    private final int pierceNum;
     private int shipsNum = 0;
-    private Pierce[] pierceList;
-
-    public Port(long capacity, int pierceNum) {
-        super(capacity);
-        this.cargo = 0;
-        this.pierceNum = pierceNum;
-        pierceList = new Pierce[pierceNum];
-        initPierce();
-    }
+    private final  Pierce[] pierceList;
 
     public Port(long capacity, long cargo, int pierceNum) {
         super(capacity, cargo);
@@ -57,9 +52,7 @@ public class Port extends Storage {
 
             }
 
-        } catch (UnsupportedOperationException e) {
-            System.out.println(e);
-        } catch (InterruptedException e) {
+        } catch (NotFound | InterruptedException e) {
             System.out.println(e);
         }
     }
@@ -72,16 +65,19 @@ public class Port extends Storage {
         System.out.println(getAllStats());
     }
 
-    public synchronized Pierce getUnoccupiedPierce() {
+    public synchronized Pierce getUnoccupiedPierce() throws NotFound {
         // get unoccupied pierce with max loadSpeed
         if (this.shipsNum == this.pierceNum) {
-//        if (Arrays.stream(pierceList).filter(p -> p.getShip() == null).count() == 0) {
             return null;
         } else {
-            return Arrays.stream(pierceList)
+            Optional<Pierce> value = Arrays.stream(pierceList)
                     .filter(p -> p.getShip() == null)
-                    .max(Loader::compareLoadSpeed)
-                    .get();
+                    .max(Loader::compareLoadSpeed);
+            if (value.isPresent()) {
+                return value.get();
+            } else {
+                throw new NotFound();
+            }
         }
     }
 
