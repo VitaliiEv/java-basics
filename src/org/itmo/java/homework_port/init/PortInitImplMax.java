@@ -26,7 +26,12 @@ public class PortInitImplMax implements PortInit {
 
     @Override
     public Ship[] taskInit(Port port, Ship[] ships) {
-        //todo
-        return null;
+        for (Ship ship : ships) {
+            long cargoTask1 = TASK_CARGO_MAX;
+            long cargoTask2 = TASK_CARGO_MAX;
+            ship.setShipTask(port, cargoTask1, cargoTask2);
+            System.out.println(ship.getShipTask().toString());
+        }
+        return ships;
     }
 }
