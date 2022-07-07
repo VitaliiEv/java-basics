@@ -93,7 +93,6 @@ public class CollectionsHomework {
         }
     }
 
-
     public static <T extends Map<User, Integer>> void getUserScore(T scoreTable) {
         System.out.print("To get user score enter username (case sensitive): "); // предполагаем что username уникально
         String userName = SCANNER.next();

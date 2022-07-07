@@ -97,4 +97,7 @@ public class Main {
         downloadManager.dmNotify();
     }
 
+    public static Status getSourceFileParserStatus() {
+        return sourceFileParser.getStatus();
+    }
 }

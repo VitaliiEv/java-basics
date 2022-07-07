@@ -25,9 +25,10 @@ public class DownloadManager implements Runnable {
         //todo what if parse hasnt started yet?
         ExecutorService executor = Executors.newFixedThreadPool(this.STREAMS);
         // todo is checking on thread alive correct?  should check if thread finished
-        while (this.TASK_LIST.getSize() > 0 || Main.fileParserIsAlive()) {
+        while (this.TASK_LIST.getSize() > 0 || Main.getSourceFileParserStatus() != Status.FINISHED) {
             boolean a = this.TASK_LIST.getSize() > 0;
             boolean b = Main.fileParserIsAlive();
+            boolean c = Main.getSourceFileParserStatus() != Status.FINISHED;
             try {
                 synchronized (this) {
                     // содержимое листа мняется между строками 28-32

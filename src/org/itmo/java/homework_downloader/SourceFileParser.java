@@ -19,18 +19,8 @@ public class SourceFileParser implements Runnable {
     private final TaskList<String, DownloadFile> TASK_LIST;
     private int linesTotal = 0;
     private int linesAdded = 0;
+    private Status status = Status.NOT_STARTED;
 
-    //todo add destination parameter
-    public SourceFileParser(String source) {
-        try {
-            this.SOURCE_PATH = Objects.requireNonNull(source);
-        } catch (NullPointerException e) {
-            String message = "Source path not set.";
-            LOGGER.error(message, e.getMessage());
-            throw new NullPointerException(message);
-        }
-        TASK_LIST = new TaskList<>();
-    }
     // todo migrate to nio
     public SourceFileParser(String sourcePath, String destinationPath) {
         try {
@@ -44,8 +34,13 @@ public class SourceFileParser implements Runnable {
         this.TASK_LIST = new TaskList<>();
     }
 
+    public Status getStatus() {
+        return status;
+    }
+
     @Override
     public void run() {
+        status = Status.RUNNING;
         try (FileReader fileReader = new FileReader(this.SOURCE_PATH);
              BufferedReader bufferedReader = new BufferedReader(Objects.requireNonNull(fileReader))) {
             LOGGER.info("Buffer ready: {}", bufferedReader.ready());
@@ -65,6 +60,8 @@ public class SourceFileParser implements Runnable {
             LOGGER.error("Source file or file path is null, {}", e.getMessage());
         } catch (IOException e) {
             LOGGER.error("Cant access or read source file, {}", e.getMessage());
+        } finally {
+            status = Status.FINISHED;
         }
     }
 
@@ -97,7 +94,7 @@ public class SourceFileParser implements Runnable {
         try {
             //todo migrate to NIO PATH
             // somehow while parsing directory the last symbol \ is trimmed
-            String absPath = this.DESTINATION_PATH+ FileSystems.getDefault().getSeparator()+fileName.trim();
+            String absPath = this.DESTINATION_PATH + FileSystems.getDefault().getSeparator() + fileName.trim();
             return Paths.get(absPath).toString();
         } catch (InvalidPathException e) {
             // todo, revalidate filename
