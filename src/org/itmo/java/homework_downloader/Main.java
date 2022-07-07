@@ -3,11 +3,6 @@ package org.itmo.java.homework_downloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.logging.*;
-
-
 /**
  * Консольная утилита для скачивания файлов по HTTP протоколу.
  * Входные параметры:
@@ -15,7 +10,6 @@ import java.util.logging.*;
  * Пример вызова:
  * java -jar utility.jar 5 output_folder links.txt
  * Формат файла со ссылками:
- * //TODO
  * <HTTP ссылка><пробел><имя файла, под которым его надо
  * сохранить>
  * пример:
@@ -55,44 +49,52 @@ import java.util.logging.*;
  */
 
 public class Main {
-    /**
-     * Путь к файлу со списком ссылок
-     */
-    private static String sourceFile;
-    /**
-     * Количество одновременно качающих потоков (1,2,3,4....)
-     */
-    private static int streams;
-    /**
-     * Имя папки, куда складывать скачанные файлы
-     */
-    private static String destination;
 
-    private static final Logger logger = LoggerFactory.getLogger(Main.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+
+    private static SourceFileParser sourceFileParser;
+    private static Thread sourceFileParserThread;
+    private static final String SOURCE_FILE_PARSER_THREAD_NAME = "Source File Parser";
+
+    private static DownloadManager downloadManager;
+    private static Thread downloadManagerThread;
+    private static final String DOWNLOAD_MANAGER_THREAD_NAME = "Download Manager";
+//    private static final Status STATUS;
+//    private static final String STATUS_THREAD_NAME = "";
 
     public static void main(String[] args) {
         //TODO Logger level settings
-//        logger.setLevel
-        //TODO parse file, parse args
-        streams = 1;
-        sourceFile = "E:\\Документы\\Виталий\\Учеба\\ИТМО\\124-19-Java(Basics)\\Практика\\список.txt";
-        destination = "E:\\Документы\\Виталий\\Учеба\\ИТМО\\124-19-Java(Basics)\\Практика\\";
-        logger.info("Hello World");
-//        logger.debug(1, t);
+        LOGGER.info("Debug log is enabled: {}", LOGGER.isDebugEnabled());
+        args = new String[3];
+        args[0] = "2";
+        args[1] = "E:\\Документы\\Виталий\\Учеба\\ИТМО\\124-19-Java(Basics)\\Практика\\";
+        args[2] = "E:\\Документы\\Виталий\\Учеба\\ИТМО\\124-19-Java(Basics)\\Практика\\список.txt";
 
-        //Todo try с ресурсами стр 65
-        try {
-//            File f = new File(sourceFile);
-//            FileInputStream f = new FileInputStream(new File(sourceFile));
-            //Todo task in map key URL, value -object
-            //Todo. start download while parsing file reading
-            FileInputStream f = new FileInputStream(sourceFile);
-        } catch (FileNotFoundException e) {
-            logger.error("Не удается найти указанный файл",e);
-        } finally {
-            logger.info("Goodbye in finally block");
-        }
-        logger.info("Goodbye");
-//
+        ArgsParser argsParser = new ArgsParser(args);
+        int streams = argsParser.getStreams();
+        String destination = argsParser.getDestinationPath();
+
+        sourceFileParser = new SourceFileParser(argsParser.getSourcePath(), destination);
+        sourceFileParserThread = new Thread(sourceFileParser, SOURCE_FILE_PARSER_THREAD_NAME);
+
+        downloadManager = new DownloadManager(streams, destination, sourceFileParser.getTaskList());
+        downloadManagerThread = new Thread(downloadManager, DOWNLOAD_MANAGER_THREAD_NAME);
+
+        sourceFileParserThread.start();
+        downloadManagerThread.start();
     }
+
+    public static Logger getLogger() {
+        return LOGGER;
+    }
+
+    public static boolean fileParserIsAlive() {
+        boolean status = sourceFileParserThread.isAlive();
+        return sourceFileParserThread.isAlive();
+    }
+
+    public static void dmNotify() {
+        downloadManager.dmNotify();
+    }
+
 }
