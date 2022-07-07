@@ -31,8 +31,6 @@ public class CollectionsHomework {
         scoreTable.put(new User("Петя"), 40);
         System.out.println(scoreTable);
         getUserScore(scoreTable);
-
-
     }
 
     public static <T, L extends List<T>> Set<T> removeDuplicate(L list) {
@@ -67,7 +65,7 @@ public class CollectionsHomework {
     }
 
     static class User {
-        private String name;
+        private final String name;
 
         public User(String name) {
             this.name = name;
