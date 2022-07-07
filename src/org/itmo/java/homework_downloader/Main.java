@@ -55,10 +55,11 @@ public class Main {
     private static SourceFileParser sourceFileParser;
     private static Thread sourceFileParserThread;
     private static final String SOURCE_FILE_PARSER_THREAD_NAME = "Source File Parser";
-
     private static DownloadManager downloadManager;
     private static Thread downloadManagerThread;
     private static final String DOWNLOAD_MANAGER_THREAD_NAME = "Download Manager";
+    private static TaskList<String, DownloadFile> TASK_LIST = new TaskList<>();
+
 //    private static final Status STATUS;
 //    private static final String STATUS_THREAD_NAME = "";
 
@@ -77,7 +78,7 @@ public class Main {
         sourceFileParser = new SourceFileParser(argsParser.getSourcePath(), destination);
         sourceFileParserThread = new Thread(sourceFileParser, SOURCE_FILE_PARSER_THREAD_NAME);
 
-        downloadManager = new DownloadManager(streams, destination, sourceFileParser.getTaskList());
+        downloadManager = new DownloadManager(streams, destination, TASK_LIST);
         downloadManagerThread = new Thread(downloadManager, DOWNLOAD_MANAGER_THREAD_NAME);
 
         sourceFileParserThread.start();
@@ -88,8 +89,12 @@ public class Main {
         return LOGGER;
     }
 
+
+    public static TaskList<String, DownloadFile> getTaskList() {
+        return TASK_LIST;
+    }
+
     public static boolean fileParserIsAlive() {
-        boolean status = sourceFileParserThread.isAlive();
         return sourceFileParserThread.isAlive();
     }
 
@@ -97,7 +102,4 @@ public class Main {
         downloadManager.dmNotify();
     }
 
-    public static Status getSourceFileParserStatus() {
-        return sourceFileParser.getStatus();
-    }
 }

@@ -1,10 +1,13 @@
 package org.itmo.java.homework_downloader;
 
+import org.slf4j.Logger;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class TaskList<K, V> {
+    private static final Logger LOGGER = Main.getLogger();
     private final ConcurrentMap<K, V> taskMap;
     private int size;
 
@@ -20,20 +23,33 @@ public class TaskList<K, V> {
         taskCreate(task.getKey(), task.getValue());
     }
 
-    public synchronized void taskCreate(K link, V task) throws UnsupportedOperationException {
+    public void taskCreate(K link, V task) throws UnsupportedOperationException {
         if (this.taskMap.putIfAbsent(link, task) != null) {
             throw new UnsupportedOperationException("Ignored duplicate link: " + link);
         }
-        this.size++;
-        Main.dmNotify();
+        synchronized (this) {
+            this.size++;
+            notifyAll();
+        }
     }
 
-    public synchronized V taskRun() {
-        Iterator<K> iterator;
-        iterator = this.taskMap.keySet().iterator(); // refresh iterator
-        V task = this.taskMap.remove(iterator.next());
-        this.size--;
-        return task;
+    public V taskRun() {
+        try {
+            synchronized (this) {
+                while (this.size == 0 && Main.fileParserIsAlive()) {
+                    LOGGER.info("Parser running, waiting for new elements");
+                    wait(); //for new tasks or parser finishing its job,
+                }
+            }
+        } catch (InterruptedException e) {
+            // todo throw new RuntimeException(e);
+        }
+        synchronized (this) {
+            Iterator<K> iterator = this.taskMap.keySet().iterator(); // refresh iterator
+            V task = this.taskMap.remove(iterator.next());
+            this.size--;
+            return task;
+        }
     }
 
     @Override

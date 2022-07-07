@@ -15,8 +15,8 @@ public class SourceFileParser implements Runnable {
     private static final String SEPARATOR = "\\s+";
     private static final Pattern SEPARATOR_MATCHER = Pattern.compile(SEPARATOR);
     private final String SOURCE_PATH;
-    private String DESTINATION_PATH;
-    private final TaskList<String, DownloadFile> TASK_LIST;
+    private final String DESTINATION_PATH;
+    private final TaskList<String, DownloadFile> TASK_LIST = Main.getTaskList();
     private int linesTotal = 0;
     private int linesAdded = 0;
     private Status status = Status.NOT_STARTED;
@@ -25,22 +25,22 @@ public class SourceFileParser implements Runnable {
     public SourceFileParser(String sourcePath, String destinationPath) {
         try {
             this.SOURCE_PATH = Objects.requireNonNull(sourcePath);
-            this.DESTINATION_PATH = Objects.requireNonNull(destinationPath);
         } catch (NullPointerException e) {
             String message = "Source path not set.";
             LOGGER.error(message, e.getMessage());
             throw new NullPointerException(message);
         }
-        this.TASK_LIST = new TaskList<>();
-    }
-
-    public Status getStatus() {
-        return status;
+        try {
+            this.DESTINATION_PATH = Objects.requireNonNull(destinationPath);
+        } catch (NullPointerException e) {
+            String message = "Destination path not set.";
+            LOGGER.error(message, e.getMessage());
+            throw new NullPointerException(message);
+        }
     }
 
     @Override
     public void run() {
-        status = Status.RUNNING;
         try (FileReader fileReader = new FileReader(this.SOURCE_PATH);
              BufferedReader bufferedReader = new BufferedReader(Objects.requireNonNull(fileReader))) {
             LOGGER.info("Buffer ready: {}", bufferedReader.ready());
@@ -60,9 +60,9 @@ public class SourceFileParser implements Runnable {
             LOGGER.error("Source file or file path is null, {}", e.getMessage());
         } catch (IOException e) {
             LOGGER.error("Cant access or read source file, {}", e.getMessage());
-        } finally {
-            status = Status.FINISHED;
         }
+//        Main.dmNotify();
+        status = Status.FINISHED;
     }
 
     private Task<String, DownloadFile> parseTask(String line) {

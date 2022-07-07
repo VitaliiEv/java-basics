@@ -4,22 +4,11 @@ import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 
 public class ArgsParser {
     private static final Logger LOGGER = Main.getLogger();
-
-    /**
-     * Количество одновременно качающих потоков (1,2,3,4....)
-     */
     private int streams;
-    /**
-     * Путь к файлу со списком ссылок
-     */
     private String sourcePath;
-    /**
-     * Имя папки, куда складывать скачанные файлы
-     */
     private String destinationPath;
 
 
