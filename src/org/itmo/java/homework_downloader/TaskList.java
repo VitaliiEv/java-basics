@@ -1,13 +1,15 @@
 package org.itmo.java.homework_downloader;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class TaskList<K, V> {
-    private final Map<K, V> taskMap;
+    private final ConcurrentMap<K, V> taskMap;
     private int size;
 
     public TaskList() {
-        this.taskMap = new LinkedHashMap<>();
+        this.taskMap = new ConcurrentHashMap<>();
     }
 
     public synchronized int getSize() {
