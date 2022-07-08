@@ -9,7 +9,7 @@ public class TaskList<K, V> {
     private final Map<K, V> taskMap;
 
     public TaskList() {
-        this.taskMap = new HashMap<>();
+        this.taskMap = new LinkedHashMap<>();
     }
 
     public synchronized int getSize() {
