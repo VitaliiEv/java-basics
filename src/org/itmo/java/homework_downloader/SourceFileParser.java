@@ -55,14 +55,12 @@ public class SourceFileParser implements Runnable {
                     this.linesTotal + " lines";
             LOGGER.info(message);
             message = this.TASK_LIST.toString();
-            LOGGER.debug(message);
+            LOGGER.info(message);
         } catch (NullPointerException e) {
             LOGGER.error("Source file or file path is null, {}", e.getMessage());
         } catch (IOException e) {
             LOGGER.error("Cant access or read source file, {}", e.getMessage());
         }
-//        Main.dmNotify();
-        status = Status.FINISHED;
     }
 
     private Task<String, DownloadFile> parseTask(String line) {
@@ -110,7 +108,7 @@ public class SourceFileParser implements Runnable {
     public void addTask(Task<String, DownloadFile> task) {
         try {
             this.TASK_LIST.taskCreate(task);
-            this.linesAdded++;
+            this.linesAdded++; // todo somehow downloader thread chages this variable
         } catch (UnsupportedOperationException e) {
             LOGGER.warn("Task not added, {}", e.getMessage());
         }

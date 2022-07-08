@@ -3,53 +3,44 @@ package org.itmo.java.homework_downloader;
 import org.slf4j.Logger;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 public class TaskList<K, V> {
     private static final Logger LOGGER = Main.getLogger();
-    private final ConcurrentMap<K, V> taskMap;
-    private int size;
+    private final Map<K, V> taskMap;
 
     public TaskList() {
-        this.taskMap = new ConcurrentHashMap<>();
+        this.taskMap = new HashMap<>();
     }
 
     public synchronized int getSize() {
-        return this.size;
+        return this.taskMap.size();
     }
 
     public <T extends java.util.Map.Entry<K, V>> void taskCreate(T task) throws UnsupportedOperationException {
         taskCreate(task.getKey(), task.getValue());
     }
 
-    public void taskCreate(K link, V task) throws UnsupportedOperationException {
+    public synchronized void taskCreate(K link, V task) throws UnsupportedOperationException {
+        // todo move to synchronized block?
         if (this.taskMap.putIfAbsent(link, task) != null) {
             throw new UnsupportedOperationException("Ignored duplicate link: " + link);
         }
-        synchronized (this) {
-            this.size++;
-            notifyAll();
-        }
+        notifyAll();
     }
 
-    public V taskRun() {
+    public synchronized V taskRun() {
+        // todo move to synchronized block?
         try {
-            synchronized (this) {
-                while (this.size == 0 && Main.fileParserIsAlive()) {
-                    LOGGER.info("Parser running, waiting for new elements");
-                    wait(); //for new tasks or parser finishing its job,
-                }
+            while (this.taskMap.size() == 0 && Main.fileParserIsAlive()) {
+                LOGGER.info("Parser running, waiting for new elements");
+                // todo never interrupts
+                wait(); //for new tasks or parser finishing its job,
             }
         } catch (InterruptedException e) {
             // todo throw new RuntimeException(e);
         }
-        synchronized (this) {
-            Iterator<K> iterator = this.taskMap.keySet().iterator(); // refresh iterator
-            V task = this.taskMap.remove(iterator.next());
-            this.size--;
-            return task;
-        }
+        Iterator<K> iterator = this.taskMap.keySet().iterator();
+        return this.taskMap.remove(iterator.next());
     }
 
     @Override

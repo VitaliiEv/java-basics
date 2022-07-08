@@ -78,7 +78,7 @@ public class Main {
         sourceFileParser = new SourceFileParser(argsParser.getSourcePath(), destination);
         sourceFileParserThread = new Thread(sourceFileParser, SOURCE_FILE_PARSER_THREAD_NAME);
 
-        downloadManager = new DownloadManager(streams, destination, TASK_LIST);
+        downloadManager = new DownloadManager(streams, destination);
         downloadManagerThread = new Thread(downloadManager, DOWNLOAD_MANAGER_THREAD_NAME);
 
         sourceFileParserThread.start();
@@ -94,7 +94,7 @@ public class Main {
         return TASK_LIST;
     }
 
-    public static boolean fileParserIsAlive() {
+    public static synchronized boolean fileParserIsAlive() {
         return sourceFileParserThread.isAlive();
     }
 

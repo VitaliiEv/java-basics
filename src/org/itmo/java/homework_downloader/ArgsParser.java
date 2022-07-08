@@ -16,17 +16,17 @@ public class ArgsParser {
         try {
             this.streams = parseStreams(arguments[0]);
         } catch (NumberFormatException e) {
-            LOGGER.error("Invalid number of streams", e.getMessage());
+            LOGGER.error("Invalid number of streams {}", e.getMessage());
         }
         try {
             this.destinationPath = parseDestinationPath(arguments[1]);
         } catch (IOException e) {
-            LOGGER.error("Invalid destination path", e.getMessage());
+            LOGGER.error("Invalid destination path {}", e.getMessage());
         }
         try {
             this.sourcePath = parseSourcePath(arguments[2]);
         } catch (IOException e) {
-            LOGGER.error("Invalid source path", e.getMessage());
+            LOGGER.error("Invalid source path {}", e.getMessage());
         }
     }
 
