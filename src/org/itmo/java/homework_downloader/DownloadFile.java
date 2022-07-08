@@ -12,6 +12,7 @@ public class DownloadFile implements Runnable {
     private static final Logger LOGGER = Main.getLogger();
     private URL url;
     private String file;
+    private Status status;
 
         // todo migrate NIO
     public DownloadFile(URL url, String file) throws NullPointerException {
@@ -21,25 +22,27 @@ public class DownloadFile implements Runnable {
         }
         this.url = url;
         this.file = file;
+        this.status = Status.NOT_STARTED;
     }
 
     @Override
     public void run() {
         LOGGER.info(this.url.toExternalForm(), "Downloading: {}");
+        this.status = Status.RUNNING;
         try (ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
              FileOutputStream fileOutputStream = new FileOutputStream(this.file)) {
             // Emulate doing something
-
             for (int i = 0; i < this.url.getPath().length(); i++) {
                 Thread.sleep( 50);
                 LOGGER.error("Thread {} doing something {}", Thread.currentThread().getName(), i);
             }
 //            fileOutputStream.getChannel().transferFrom(readableByteChannel,0, Long.MAX_VALUE);
+            this.status = Status.FINISHED;
         } catch (IOException e) {
             LOGGER.error("Cant open connection, {}", e.getMessage());
+            this.status = Status.FAILED;
         } catch (InterruptedException e) {
             // TODO
         }
-
     }
 }
