@@ -19,28 +19,16 @@ public class SourceFileParser implements Runnable {
     private final TaskList<String, DownloadFile> TASK_LIST = Main.getTaskList();
     private int linesTotal = 0;
     private int linesAdded = 0;
-    private Status status = Status.NOT_STARTED;
 
     // todo migrate to nio
     public SourceFileParser(String sourcePath, String destinationPath) {
-        try {
-            this.SOURCE_PATH = Objects.requireNonNull(sourcePath);
-        } catch (NullPointerException e) {
-            String message = "Source path not set.";
-            LOGGER.error(message, e.getMessage());
-            throw new NullPointerException(message);
-        }
-        try {
+            this.SOURCE_PATH = sourcePath;
             this.DESTINATION_PATH = Objects.requireNonNull(destinationPath);
-        } catch (NullPointerException e) {
-            String message = "Destination path not set.";
-            LOGGER.error(message, e.getMessage());
-            throw new NullPointerException(message);
-        }
     }
 
     @Override
     public void run() {
+
         try (FileReader fileReader = new FileReader(this.SOURCE_PATH);
              BufferedReader bufferedReader = new BufferedReader(Objects.requireNonNull(fileReader))) {
             LOGGER.info("Buffer ready: {}", bufferedReader.ready());
@@ -51,15 +39,25 @@ public class SourceFileParser implements Runnable {
                     addTask(task);
                 }
             }
+            this.TASK_LIST.updateNewTasksList(); // in order to notify DM that job is done
             String message = "Parsing source file finished. Formed " + this.linesAdded + " download tasks from " +
                     this.linesTotal + " lines";
             LOGGER.info(message);
             message = this.TASK_LIST.toString();
-            LOGGER.info(message);
+            LOGGER.debug(message);
         } catch (NullPointerException e) {
             LOGGER.error("Source file or file path is null, {}", e.getMessage());
         } catch (IOException e) {
             LOGGER.error("Cant access or read source file, {}", e.getMessage());
+        }
+    }
+
+    public void addTask(Task<String, DownloadFile> task) {
+        try {
+            this.TASK_LIST.taskCreate(task);
+            this.linesAdded++; // todo somehow downloader thread chages this variable
+        } catch (UnsupportedOperationException e) {
+            LOGGER.warn("Task not added, {}", e.getMessage());
         }
     }
 
@@ -99,18 +97,5 @@ public class SourceFileParser implements Runnable {
             LOGGER.warn("Invalid filename, task ignored, {}", e.getMessage());
         }
         return null;
-    }
-
-    public TaskList<String, DownloadFile> getTaskList() {
-        return TASK_LIST;
-    }
-
-    public void addTask(Task<String, DownloadFile> task) {
-        try {
-            this.TASK_LIST.taskCreate(task);
-            this.linesAdded++; // todo somehow downloader thread chages this variable
-        } catch (UnsupportedOperationException e) {
-            LOGGER.warn("Task not added, {}", e.getMessage());
-        }
     }
 }

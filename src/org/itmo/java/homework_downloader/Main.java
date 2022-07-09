@@ -3,6 +3,9 @@ package org.itmo.java.homework_downloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Консольная утилита для скачивания файлов по HTTP протоколу.
  * Входные параметры:
@@ -78,7 +81,7 @@ public class Main {
         sourceFileParser = new SourceFileParser(argsParser.getSourcePath(), destination);
         sourceFileParserThread = new Thread(sourceFileParser, SOURCE_FILE_PARSER_THREAD_NAME);
 
-        downloadManager = new DownloadManager(streams, destination);
+        downloadManager = new DownloadManager(streams);
         downloadManagerThread = new Thread(downloadManager, DOWNLOAD_MANAGER_THREAD_NAME);
 
         sourceFileParserThread.start();
@@ -98,8 +101,8 @@ public class Main {
         return sourceFileParserThread.isAlive();
     }
 
-    public static void dmNotify() {
-        downloadManager.dmNotify();
+    public static synchronized List<Map.Entry<String, DownloadFile>> getNewTasksList() {
+        return TASK_LIST.getNewTasks();
     }
 
 }

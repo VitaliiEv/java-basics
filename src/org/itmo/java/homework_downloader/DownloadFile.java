@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import static org.itmo.java.homework_downloader.Status.*;
 
 public class DownloadFile implements Runnable {
     private static final Logger LOGGER = Main.getLogger();
@@ -14,7 +15,7 @@ public class DownloadFile implements Runnable {
     private String file;
     private Status status;
 
-        // todo migrate NIO
+    // todo migrate NIO
     public DownloadFile(URL url, String file) throws NullPointerException {
         //Parameters are checked for validity in SourceFileParser
         if (url == null || file == null) {
@@ -22,27 +23,39 @@ public class DownloadFile implements Runnable {
         }
         this.url = url;
         this.file = file;
-        this.status = Status.NOT_STARTED;
+        this.status = NOT_STARTED;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     @Override
     public void run() {
         LOGGER.info(this.url.toExternalForm(), "Downloading: {}");
-        this.status = Status.RUNNING;
-        try (ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
-             FileOutputStream fileOutputStream = new FileOutputStream(this.file)) {
-            // Emulate doing something
+        this.status = RUNNING;
+        // Emulate doing something
+        try {
             for (int i = 0; i < this.url.getPath().length(); i++) {
-                Thread.sleep( 50);
+                Thread.sleep(50);
                 LOGGER.error("Thread {} doing something {}", Thread.currentThread().getName(), i);
             }
-//            fileOutputStream.getChannel().transferFrom(readableByteChannel,0, Long.MAX_VALUE);
-            this.status = Status.FINISHED;
-        } catch (IOException e) {
-            LOGGER.error("Cant open connection, {}", e.getMessage());
-            this.status = Status.FAILED;
+            this.status = FINISHED;
         } catch (InterruptedException e) {
-            // TODO
+            LOGGER.error("Interrupted", e.getMessage());
+            this.status = FAILED;
         }
+//        try (ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
+//             FileOutputStream fileOutputStream = new FileOutputStream(this.file)) {
+//            fileOutputStream.getChannel().transferFrom(readableByteChannel,0, Long.MAX_VALUE);
+//            this.status = FINISHED;
+//        } catch (IOException e) {
+//            LOGGER.error("Cant open connection, {}", e.getMessage());
+//            this.status = FAILED;
+//        }
     }
 }
