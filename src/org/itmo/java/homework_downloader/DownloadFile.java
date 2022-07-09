@@ -47,19 +47,7 @@ public class DownloadFile implements Runnable {
         if (Files.exists(this.downloadFilePath)) {
             this.downloadFilePath = getNewFileName(this.downloadFilePath);
         }
-        // Emulate doing something
-//        try {
-//            for (int i = 0; i < this.url.getPath().length()/10; i++) {
-//                Thread.sleep(5);
-//                LOGGER.error("Thread {} doing something {}, link: {}", Thread.currentThread().getName(), i, this
-//                .url.toExternalForm());
-//            }
-//            LOGGER.info("Finished: {}", this.url.toExternalForm());
-//            this.status = FINISHED;
-//        } catch (InterruptedException e) {
-//            LOGGER.error("Interrupted", e.getMessage());
-//            this.status = FAILED;
-//        }
+
         try (ReadableByteChannel readableByteChannel = Channels.newChannel(this.url.openStream());
              FileOutputStream fileOutputStream = new FileOutputStream(this.downloadFilePath.toString())) {//todo use NIO
             fileOutputStream.getChannel().transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
