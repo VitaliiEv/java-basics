@@ -4,6 +4,10 @@ import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class ArgsParser {
     private static final Logger LOGGER = Main.getLogger();
@@ -47,20 +51,20 @@ public class ArgsParser {
     }
 
     private String parseSourcePath(String path) throws IOException {
-        //todo migrate to NIO PATH
-        File f = new File(path);
-        if (f.isFile()) {
-            return f.getCanonicalPath();
+        //todo migrate to NIO PATH, add exceptions
+        Path f = Paths.get(path).normalize().toAbsolutePath();
+        if (Files.isRegularFile(f)) {
+            return f.toString();
         } else {
             throw new IOException("Not a file at given path");
         }
     }
 
     private String parseDestinationPath(String path) throws IOException {
-        //todo migrate to NIO PATH
-        File d = new File(path);
-        if (d.isDirectory()) {
-            return d.getCanonicalPath();
+        //todo migrate to NIO PATH, add exceptions
+        Path d = Paths.get(path).normalize().toAbsolutePath();
+        if (Files.isDirectory(d)) {
+            return d.toString();
         } else {
             throw new IOException("Not a directory at given path");
         }

@@ -100,12 +100,26 @@ public class SourceFileParser implements Runnable {
         return null;
     }
 
+    @Deprecated
     public String validateFilename(String fileName) {
         try {
             //todo migrate to NIO PATH
             // somehow while parsing directory the last symbol \ is trimmed
             String absPath = this.DESTINATION_PATH + FileSystems.getDefault().getSeparator() + fileName.trim();
             return Paths.get(absPath).toString();
+        } catch (InvalidPathException e) {
+            // todo, revalidate filename
+            LOGGER.warn("Invalid filename, task ignored, {}", e.getMessage());
+        }
+        return null;
+    }
+
+    public Path validateFilename2(String fileName) {
+        try {
+            //todo migrate to NIO PATH
+            // somehow while parsing directory the last symbol \ is trimmed
+            String absPath = this.DESTINATION_PATH + FileSystems.getDefault().getSeparator() + fileName.trim();
+            return Paths.get(absPath);
         } catch (InvalidPathException e) {
             // todo, revalidate filename
             LOGGER.warn("Invalid filename, task ignored, {}", e.getMessage());
