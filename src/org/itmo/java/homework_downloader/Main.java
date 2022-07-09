@@ -61,7 +61,7 @@ public class Main {
     private static DownloadManager downloadManager;
     private static Thread downloadManagerThread;
     private static final String DOWNLOAD_MANAGER_THREAD_NAME = "Download Manager";
-    private static TaskList<String, DownloadFile> TASK_LIST = new TaskList<>();
+    private static final TaskList<String, DownloadFile> TASK_LIST = new TaskList<>();
 
 //    private static final Status STATUS;
 //    private static final String STATUS_THREAD_NAME = "";
@@ -70,7 +70,7 @@ public class Main {
         //TODO Logger level settings
         LOGGER.info("Debug log is enabled: {}", LOGGER.isDebugEnabled());
         args = new String[3];
-        args[0] = "2";
+        args[0] = "4";
         args[1] = "E:\\Документы\\Виталий\\Учеба\\ИТМО\\124-19-Java(Basics)\\Практика\\";
         args[2] = "E:\\Документы\\Виталий\\Учеба\\ИТМО\\124-19-Java(Basics)\\Практика\\список.txt";
 
@@ -78,10 +78,10 @@ public class Main {
         int streams = argsParser.getStreams();
         String destination = argsParser.getDestinationPath();
 
-        sourceFileParser = new SourceFileParser(argsParser.getSourcePath(), destination);
+        sourceFileParser = new SourceFileParser(argsParser.getSourcePath(), destination, TASK_LIST);
         sourceFileParserThread = new Thread(sourceFileParser, SOURCE_FILE_PARSER_THREAD_NAME);
 
-        downloadManager = new DownloadManager(streams);
+        downloadManager = new DownloadManager(streams, TASK_LIST);
         downloadManagerThread = new Thread(downloadManager, DOWNLOAD_MANAGER_THREAD_NAME);
 
         sourceFileParserThread.start();
@@ -92,17 +92,11 @@ public class Main {
         return LOGGER;
     }
 
-
-    public static TaskList<String, DownloadFile> getTaskList() {
-        return TASK_LIST;
-    }
-
     public static synchronized boolean fileParserIsAlive() {
         return sourceFileParserThread.isAlive();
     }
 
-    public static synchronized List<Map.Entry<String, DownloadFile>> getNewTasksList() {
-        return TASK_LIST.getNewTasks();
+    public static Status getParserStatus() {
+        return sourceFileParser.getStatus();
     }
-
 }

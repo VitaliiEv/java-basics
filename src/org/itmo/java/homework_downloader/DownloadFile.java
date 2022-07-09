@@ -36,14 +36,15 @@ public class DownloadFile implements Runnable {
 
     @Override
     public void run() {
-        LOGGER.info(this.url.toExternalForm(), "Downloading: {}");
+        LOGGER.info("Downloading: {}", this.url.toExternalForm());
         this.status = RUNNING;
         // Emulate doing something
         try {
-            for (int i = 0; i < this.url.getPath().length(); i++) {
-                Thread.sleep(50);
-                LOGGER.error("Thread {} doing something {}", Thread.currentThread().getName(), i);
+            for (int i = 0; i < this.url.getPath().length()/10; i++) {
+                Thread.sleep(5);
+//                LOGGER.error("Thread {} doing something {}, link: {}", Thread.currentThread().getName(), i, this.url.toExternalForm());
             }
+            LOGGER.info("Finished: {}", this.url.toExternalForm());
             this.status = FINISHED;
         } catch (InterruptedException e) {
             LOGGER.error("Interrupted", e.getMessage());

@@ -8,6 +8,9 @@ import java.net.URL;
 import java.nio.file.*;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static org.itmo.java.homework_downloader.Status.*;
 
 
 public class SourceFileParser implements Runnable {
@@ -16,19 +19,25 @@ public class SourceFileParser implements Runnable {
     private static final Pattern SEPARATOR_MATCHER = Pattern.compile(SEPARATOR);
     private final String SOURCE_PATH;
     private final String DESTINATION_PATH;
-    private final TaskList<String, DownloadFile> TASK_LIST = Main.getTaskList();
+    private final TaskList<String, DownloadFile> TASK_LIST;
     private int linesTotal = 0;
     private int linesAdded = 0;
+    private Status status = NOT_STARTED;
 
     // todo migrate to nio
-    public SourceFileParser(String sourcePath, String destinationPath) {
-            this.SOURCE_PATH = sourcePath;
-            this.DESTINATION_PATH = Objects.requireNonNull(destinationPath);
+    public SourceFileParser(String sourcePath, String destinationPath, TaskList taskList) {
+        this.SOURCE_PATH = sourcePath;
+        this.DESTINATION_PATH = destinationPath;
+        this.TASK_LIST = taskList;
+    }
+
+    public Status getStatus() {
+        return status;
     }
 
     @Override
     public void run() {
-
+        this.status = RUNNING;
         try (FileReader fileReader = new FileReader(this.SOURCE_PATH);
              BufferedReader bufferedReader = new BufferedReader(Objects.requireNonNull(fileReader))) {
             LOGGER.info("Buffer ready: {}", bufferedReader.ready());
@@ -39,23 +48,28 @@ public class SourceFileParser implements Runnable {
                     addTask(task);
                 }
             }
+            this.status = FINISHED;
             this.TASK_LIST.updateNewTasksList(); // in order to notify DM that job is done
             String message = "Parsing source file finished. Formed " + this.linesAdded + " download tasks from " +
                     this.linesTotal + " lines";
             LOGGER.info(message);
             message = this.TASK_LIST.toString();
             LOGGER.debug(message);
+
         } catch (NullPointerException e) {
             LOGGER.error("Source file or file path is null, {}", e.getMessage());
+            throw new NullPointerException(e.getMessage());
         } catch (IOException e) {
-            LOGGER.error("Cant access or read source file, {}", e.getMessage());
+//            LOGGER.error("Cant access or read source file, {}", e.getMessage());
+            this.status = FAILED;
+            throw new RuntimeException(e.getMessage());
         }
     }
 
     public void addTask(Task<String, DownloadFile> task) {
         try {
             this.TASK_LIST.taskCreate(task);
-            this.linesAdded++; // todo somehow downloader thread chages this variable
+            this.linesAdded++;
         } catch (UnsupportedOperationException e) {
             LOGGER.warn("Task not added, {}", e.getMessage());
         }
