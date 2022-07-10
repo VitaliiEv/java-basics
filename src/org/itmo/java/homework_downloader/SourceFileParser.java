@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -17,16 +18,16 @@ public class SourceFileParser implements Runnable {
     private static final Logger LOGGER = Main.getLogger();
     private static final String SEPARATOR = "\\s+";
     private static final Pattern SEPARATOR_MATCHER = Pattern.compile(SEPARATOR);
-    private final String SOURCE_PATH;
-    private final String DESTINATION_PATH;
+    private final Path SOURCE_PATH;
+    private final Path DESTINATION_PATH;
     private final TaskList<String, DownloadFile> TASK_LIST;
     private int linesTotal = 0;
     private int linesAdded = 0;
     private Status status = NOT_STARTED;
 
-    // todo migrate to nio
-    public SourceFileParser(String sourcePath, String destinationPath, TaskList taskList) {
-        this.SOURCE_PATH = sourcePath;
+
+    public SourceFileParser(Path sourceFile, Path destinationPath, TaskList<String, DownloadFile> taskList) {
+        this.SOURCE_PATH = sourceFile;
         this.DESTINATION_PATH = destinationPath;
         this.TASK_LIST = taskList;
     }
@@ -38,7 +39,7 @@ public class SourceFileParser implements Runnable {
     @Override
     public void run() {
         this.status = RUNNING;
-        try (FileReader fileReader = new FileReader(this.SOURCE_PATH);
+        try (FileReader fileReader = new FileReader(this.SOURCE_PATH.toString()); // todo NIO
              BufferedReader bufferedReader = new BufferedReader(Objects.requireNonNull(fileReader))) {
             LOGGER.info("Buffer ready: {}", bufferedReader.ready());
             while (bufferedReader.ready()) {
@@ -53,7 +54,7 @@ public class SourceFileParser implements Runnable {
             String message = "Parsing source file finished. Formed " + this.linesAdded + " download tasks from " +
                     this.linesTotal + " lines";
             LOGGER.info(message);
-            message = String.format("Formed list of tasks: \n")  + this.TASK_LIST.toString();
+            message = String.format("Formed list of tasks: %n")  + this.TASK_LIST.toString();
             LOGGER.debug(message);
 
         } catch (NullPointerException e) {
@@ -78,7 +79,7 @@ public class SourceFileParser implements Runnable {
     private Task<String, DownloadFile> parseTask(String line) {
         String[] taskStr = SEPARATOR_MATCHER.split(line, 2);
         URL validUrl = validateUrl(taskStr[0]);
-        String validFilename = validateFilename(taskStr[1]);
+        Path validFilename = validateFilename(taskStr[1]);
         if (validUrl != null && validFilename != null) {
             return new Task<>(validUrl.toExternalForm(), new DownloadFile(validUrl, validFilename));
         } else {
@@ -100,26 +101,10 @@ public class SourceFileParser implements Runnable {
         return null;
     }
 
-    @Deprecated
-    public String validateFilename(String fileName) {
+    public Path validateFilename(String fileName) {
         try {
-            //todo migrate to NIO PATH
-            // somehow while parsing directory the last symbol \ is trimmed
-            String absPath = this.DESTINATION_PATH + FileSystems.getDefault().getSeparator() + fileName.trim();
-            return Paths.get(absPath).toString();
-        } catch (InvalidPathException e) {
-            // todo, revalidate filename
-            LOGGER.warn("Invalid filename, task ignored, {}", e.getMessage());
-        }
-        return null;
-    }
-
-    public Path validateFilename2(String fileName) {
-        try {
-            //todo migrate to NIO PATH
-            // somehow while parsing directory the last symbol \ is trimmed
-            String absPath = this.DESTINATION_PATH + FileSystems.getDefault().getSeparator() + fileName.trim();
-            return Paths.get(absPath);
+            Path absPath =  this.DESTINATION_PATH.resolve(Paths.get(fileName.trim()));
+            return absPath;
         } catch (InvalidPathException e) {
             // todo, revalidate filename
             LOGGER.warn("Invalid filename, task ignored, {}", e.getMessage());

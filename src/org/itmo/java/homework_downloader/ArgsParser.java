@@ -1,8 +1,5 @@
 package org.itmo.java.homework_downloader;
 
-import org.slf4j.Logger;
-
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -10,63 +7,33 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class ArgsParser {
-    private static final Logger LOGGER = Main.getLogger();
-    private int streams;
-    private String sourcePath;
-    private String destinationPath;
+    private final int STREAMS;
+    private final Path SOURCE_PATH;
+    private final Path DESTINATION_PATH;
 
 
-    public ArgsParser(String[] arguments) {
-        try {
-            this.streams = parseStreams(arguments[0]);
-        } catch (NumberFormatException e) {
-            LOGGER.error("Invalid number of streams {}", e.getMessage());
+    public ArgsParser(String[] arguments) throws NumberFormatException, InvalidPathException, IOException {
+        // no catching - illegal arguments must crash program
+        this.STREAMS = Integer.parseInt(arguments[0]);
+        this.DESTINATION_PATH = Paths.get(arguments[1]).toAbsolutePath();
+        if (!Files.isDirectory(this.DESTINATION_PATH)) {
+            throw new IOException("Not a directory at given path");
         }
-        try {
-            this.destinationPath = parseDestinationPath(arguments[1]);
-        } catch (IOException e) {
-            LOGGER.error("Invalid destination path {}", e.getMessage());
-        }
-        try {
-            this.sourcePath = parseSourcePath(arguments[2]);
-        } catch (IOException e) {
-            LOGGER.error("Invalid source path {}", e.getMessage());
-        }
-    }
-
-    public int getStreams() {
-        return streams;
-    }
-
-    public String getSourcePath() {
-        return sourcePath;
-    }
-
-    public String getDestinationPath() {
-        return destinationPath;
-    }
-
-    private int parseStreams(String streams) throws NumberFormatException {
-        return Integer.parseInt(streams);
-    }
-
-    private String parseSourcePath(String path) throws IOException {
-        //todo migrate to NIO PATH, add exceptions
-        Path f = Paths.get(path).normalize().toAbsolutePath();
-        if (Files.isRegularFile(f)) {
-            return f.toString();
-        } else {
+        this.SOURCE_PATH = Paths.get(arguments[2]).toAbsolutePath();
+        if (!Files.isRegularFile(this.SOURCE_PATH)) {
             throw new IOException("Not a file at given path");
         }
     }
 
-    private String parseDestinationPath(String path) throws IOException {
-        //todo migrate to NIO PATH, add exceptions
-        Path d = Paths.get(path).normalize().toAbsolutePath();
-        if (Files.isDirectory(d)) {
-            return d.toString();
-        } else {
-            throw new IOException("Not a directory at given path");
-        }
+    public int getStreams() {
+        return this.STREAMS;
+    }
+
+    public Path getSourcePath() {
+        return this.SOURCE_PATH;
+    }
+
+    public Path getDestinationPath() {
+        return this.DESTINATION_PATH;
     }
 }

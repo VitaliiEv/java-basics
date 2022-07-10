@@ -16,29 +16,54 @@ import static org.itmo.java.homework_downloader.Status.*;
 public class DownloadFile implements Runnable {
     private static final Logger LOGGER = Main.getLogger();
     private URL url;
-    private String file;
+//    private String file;
     private Path downloadFilePath;
     private Status status;
+    private Double fileSize;
+    private Double startTime;
+    private Double finishTime;
+    private Double currentlyDownloadedSize;
+    private Double currentTime;
+    /**
+     * Консольная утилита для скачивания файлов по HTTP протоколу.
+     * Входные параметры:
+     * Пример вызова:
+     * java -jar utility.jar 5 output_folder links.txt
+     * <p>
+     * Выходные данные:
+     * 1. Все файлы загружаются в n потоков.
+     * 2. В процессе работы утилита должна выводить статистику — время работы и
+     * количество скачанных байт виде:
+     * <p>
+     * Загружается файл: %ИМЯ%
+     * Файл %ИМЯ% загружен: 1 MB за 1 минуту
+     * <p>
+     * 3. После завершения работы программа выводит:
+     * Загружено: 17 файлов, 2.3 MB
+     * Время: 2 минуты 13 секунд
+     * Средняя скорость: 17.2 kB/s
+     */
 
-
-    // todo migrate NIO
-    public DownloadFile(URL url, String file) throws NullPointerException {
+    public DownloadFile(URL url, Path file) throws NullPointerException {
         //Parameters are checked for validity in SourceFileParser
         if (url == null || file == null) {
             throw new NullPointerException();
         }
         this.url = url;
-        this.file = file;
         this.status = NOT_STARTED;
-        this.downloadFilePath = Paths.get(this.file);
+        this.downloadFilePath = file;
     }
 
-    public Status getStatus() {
-        return status;
+        public Status getStatus() {
+        return this.status;
     }
 
     public Path getDownloadFilePath() {
-        return downloadFilePath;
+        return this.downloadFilePath;
+    }
+
+    public Path getFileName() {
+        return this.downloadFilePath.getFileName();
     }
 
     public void setStatus(Status status) {

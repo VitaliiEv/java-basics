@@ -3,13 +3,10 @@ package org.itmo.java.homework_downloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Консольная утилита для скачивания файлов по HTTP протоколу.
@@ -30,15 +27,13 @@ import java.nio.file.Paths;
  * Время: 2 минуты 13 секунд
  * Средняя скорость: 17.2 kB/s
  */
-
 public class Main {
     static {
         // must set before the Logger loads logging.properties from the classpath
         try {
             ClassLoader classLoader = Main.class.getClassLoader();
             String path = classLoader.getResource("resources/logging.properties").getFile();
-            String enc  = System.getProperty("file.encoding");
-            path = URLDecoder.decode(path, "UTF-8"); //todo check default system enc
+            path = URLDecoder.decode(path, "UTF-8"); //System.getProperty("file.encoding") doesnt work
             System.setProperty("java.util.logging.config.file", path);
         } catch (NullPointerException | UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -46,20 +41,16 @@ public class Main {
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
-
-    private static SourceFileParser sourceFileParser;
-    private static Thread sourceFileParserThread;
     private static final String SOURCE_FILE_PARSER_THREAD_NAME = "Source File Parser";
-    private static DownloadManager downloadManager;
-    private static Thread downloadManagerThread;
     private static final String DOWNLOAD_MANAGER_THREAD_NAME = "Download Manager";
     private static final TaskList<String, DownloadFile> TASK_LIST = new TaskList<>();
+    private static SourceFileParser sourceFileParser;
+    private static DownloadManager downloadManager;
 
 //    private static final Status STATUS;
 //    private static final String STATUS_THREAD_NAME = "";
 
-    public static void main(String[] args) {
-        //TODO Logger level settings
+    public static void main(String[] args) throws IOException {
         LOGGER.info("Debug log is enabled: {}", LOGGER.isDebugEnabled());
         args = new String[3];
         args[0] = "4";
@@ -68,13 +59,13 @@ public class Main {
 
         ArgsParser argsParser = new ArgsParser(args);
         int streams = argsParser.getStreams();
-        String destination = argsParser.getDestinationPath();
-
-        sourceFileParser = new SourceFileParser(argsParser.getSourcePath(), destination, TASK_LIST);
-        sourceFileParserThread = new Thread(sourceFileParser, SOURCE_FILE_PARSER_THREAD_NAME);
+        Path destination = argsParser.getDestinationPath();
+        Path sourceFile = argsParser.getDestinationPath();
+        sourceFileParser = new SourceFileParser(sourceFile, destination, TASK_LIST);
+        Thread sourceFileParserThread = new Thread(sourceFileParser, SOURCE_FILE_PARSER_THREAD_NAME);
 
         downloadManager = new DownloadManager(streams, TASK_LIST);
-        downloadManagerThread = new Thread(downloadManager, DOWNLOAD_MANAGER_THREAD_NAME);
+        Thread downloadManagerThread = new Thread(downloadManager, DOWNLOAD_MANAGER_THREAD_NAME);
 
         sourceFileParserThread.start();
         downloadManagerThread.start();
@@ -82,10 +73,6 @@ public class Main {
 
     public static Logger getLogger() {
         return LOGGER;
-    }
-
-    public static synchronized boolean fileParserIsAlive() {
-        return sourceFileParserThread.isAlive();
     }
 
     public static Status getParserStatus() {
