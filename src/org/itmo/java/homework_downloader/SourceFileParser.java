@@ -53,7 +53,7 @@ public class SourceFileParser implements Runnable {
             String message = "Parsing source file finished. Formed " + this.linesAdded + " download tasks from " +
                     this.linesTotal + " lines";
             LOGGER.info(message);
-            message = this.TASK_LIST.toString();
+            message = String.format("Formed list of tasks: \n")  + this.TASK_LIST.toString();
             LOGGER.debug(message);
 
         } catch (NullPointerException e) {

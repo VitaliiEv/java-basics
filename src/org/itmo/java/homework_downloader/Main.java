@@ -3,39 +3,19 @@ package org.itmo.java.homework_downloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Map;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Консольная утилита для скачивания файлов по HTTP протоколу.
  * Входные параметры:
- * //TODO
  * Пример вызова:
  * java -jar utility.jar 5 output_folder links.txt
- * Формат файла со ссылками:
- * <HTTP ссылка><пробел><имя файла, под которым его надо
- * сохранить>
- * пример:
- * http://example.com/archive.zip my_archive.zip
- * http://example.com/image.jpg picture.jpg
- * ......
- * В HTTP ссылке нет пробелов, нет encoded символов и прочего — это всегда
- * обычные ссылки с английскими символами без специальных символов в именах
- * файлов и прочего. Ссылкам можно не делать decode. Ссылки без авторизации, не
- * HTTPS/FTP — всегда только HTTP-протокол
- * Ссылки могут повторяться в файле, но с разными именами для сохранения,
- * например:
- * http://example.com/archive.zip first_archive.zip
- * http://example.com/archive.zip second_archive.zip
- * <p>
- * Одинаковые ссылки — это нормальная ситуация, ее необходимо учитывать. То
- * есть, нет смысла загружать одно и тоже дважды, особенно если речь идет о
- * гигабайтах.
- * <p>
- * Потоки
- * Подразумевается, что один поток качает один файл, не надо качать один файл в
- * несколько потоков. То есть если файлов 2, а потоков 3, то надо запустить два
- * потока, каждый из которых будет загружать один файл.
  * <p>
  * Выходные данные:
  * 1. Все файлы загружаются в n потоков.
@@ -52,6 +32,18 @@ import java.util.Map;
  */
 
 public class Main {
+    static {
+        // must set before the Logger loads logging.properties from the classpath
+        try {
+            ClassLoader classLoader = Main.class.getClassLoader();
+            String path = classLoader.getResource("resources/logging.properties").getFile();
+            String enc  = System.getProperty("file.encoding");
+            path = URLDecoder.decode(path, "UTF-8"); //todo check default system enc
+            System.setProperty("java.util.logging.config.file", path);
+        } catch (NullPointerException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 

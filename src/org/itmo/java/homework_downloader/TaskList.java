@@ -61,7 +61,10 @@ public class TaskList<K, V extends DownloadFile> {
     public String toString() {
         StringBuilder str = new StringBuilder();
         for (Map.Entry<K, V> e : this.taskMap.entrySet()) {
-            str.append(e.getKey()).append(" ").append(e.getValue()).append("\n");
+            str.append(e.getKey())
+                    .append(" ")
+                    .append(e.getValue().getDownloadFilePath().getFileName().toString())
+                    .append("\n");
         }
         return String.valueOf(str);
     }

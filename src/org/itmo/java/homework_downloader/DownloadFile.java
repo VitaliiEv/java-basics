@@ -20,6 +20,7 @@ public class DownloadFile implements Runnable {
     private Path downloadFilePath;
     private Status status;
 
+
     // todo migrate NIO
     public DownloadFile(URL url, String file) throws NullPointerException {
         //Parameters are checked for validity in SourceFileParser
@@ -36,22 +37,32 @@ public class DownloadFile implements Runnable {
         return status;
     }
 
+    public Path getDownloadFilePath() {
+        return downloadFilePath;
+    }
+
     public void setStatus(Status status) {
         this.status = status;
     }
 
+
     @Override
     public void run() {
-        LOGGER.info("Downloading: {}", this.url.toExternalForm());
+        String logMessage;
+        logMessage = this.url.toExternalForm();
+        LOGGER.info("Downloading: {}", logMessage);
         this.status = RUNNING;
         if (Files.exists(this.downloadFilePath)) {
+            logMessage = this.downloadFilePath.getFileName().toString();
+            LOGGER.info("Found duplicate file: {}", logMessage);
             this.downloadFilePath = getNewFileName(this.downloadFilePath);
         }
 
         try (ReadableByteChannel readableByteChannel = Channels.newChannel(this.url.openStream());
              FileOutputStream fileOutputStream = new FileOutputStream(this.downloadFilePath.toString())) {//todo use NIO
             fileOutputStream.getChannel().transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
-            LOGGER.info("Finished: {}", this.url.toExternalForm());
+            logMessage = this.url.toExternalForm();
+            LOGGER.info("Finished: {}", logMessage);
             this.status = FINISHED;
         } catch (IOException e) {
             LOGGER.error("Cant open connection, {}", e.getMessage());
@@ -59,7 +70,7 @@ public class DownloadFile implements Runnable {
         }
     }
 
-    public Path getNewFileName(Path p) {
+    private Path getNewFileName(Path p) {
         Path fileName = p.getFileName();
         String str = fileName.toString();
         int i = 1;
