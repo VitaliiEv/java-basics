@@ -13,15 +13,21 @@ public class DownloadManager implements Runnable {
     private static final Logger LOGGER = Main.getLogger();
     private final int STREAMS;
     private final TaskList<String, DownloadFile> TASK_LIST;
+    private Status status = NOT_STARTED;
 
     public DownloadManager(int STREAMS, TaskList<String, DownloadFile> TASK_LIST) {
         this.STREAMS = STREAMS;
         this.TASK_LIST = TASK_LIST;
     }
 
+    public Status getStatus() {
+        return this.status;
+    }
+
     @Override
     public void run() {
         LOGGER.info("Downloading manager started");
+        this.status = RUNNING;
         ExecutorService executor = Executors.newFixedThreadPool(this.STREAMS);
         List<Map.Entry<String, DownloadFile>> notStartedTasks = TASK_LIST.getNewTasks();
         while (!notStartedTasks.isEmpty()) {
@@ -38,15 +44,7 @@ public class DownloadManager implements Runnable {
         }
         executor.shutdown();
         LOGGER.info("Download manager finished");
-    }
-
-    public String getCurrentStats() {
-        return null;
-    }
-
-    public String getFinalStats() {
-        return null;
-
+        this.status = FINISHED;
     }
 
 }

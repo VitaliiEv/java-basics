@@ -43,6 +43,7 @@ public class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
     private static final String SOURCE_FILE_PARSER_THREAD_NAME = "Source File Parser";
     private static final String DOWNLOAD_MANAGER_THREAD_NAME = "Download Manager";
+    private static final String STATUS_MONITOR_THREAD_NAME = "Status Monitor";
     private static final TaskList<String, DownloadFile> TASK_LIST = new TaskList<>();
     private static SourceFileParser sourceFileParser;
     private static DownloadManager downloadManager;
@@ -67,8 +68,13 @@ public class Main {
         downloadManager = new DownloadManager(streams, TASK_LIST);
         Thread downloadManagerThread = new Thread(downloadManager, DOWNLOAD_MANAGER_THREAD_NAME);
 
+
+        StatusMonitor statusMonitor = new StatusMonitor(TASK_LIST);
+        Thread statusMonitorThread = new Thread(statusMonitor, STATUS_MONITOR_THREAD_NAME);
+
         sourceFileParserThread.start();
         downloadManagerThread.start();
+        statusMonitorThread.start();
     }
 
     public static Logger getLogger() {
@@ -77,5 +83,13 @@ public class Main {
 
     public static Status getParserStatus() {
         return sourceFileParser.getStatus();
+    }
+
+    public static int getLinesTotal() {
+        return sourceFileParser.getLinesTotal();
+    }
+
+    public static Status getDMStatus() {
+        return downloadManager.getStatus();
     }
 }

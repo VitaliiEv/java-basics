@@ -2,11 +2,9 @@ package org.itmo.java.homework_downloader;
 
 import org.slf4j.Logger;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,14 +14,15 @@ import static org.itmo.java.homework_downloader.Status.*;
 public class DownloadFile implements Runnable {
     private static final Logger LOGGER = Main.getLogger();
     private URL url;
-//    private String file;
+    private URLConnection connection;
     private Path downloadFilePath;
     private Status status;
-    private Double fileSize;
+    private double fileSize;
     private Double startTime;
     private Double finishTime;
-    private Double currentlyDownloadedSize;
+    private double currentSize = 0;
     private Double currentTime;
+
     /**
      * Консольная утилита для скачивания файлов по HTTP протоколу.
      * Входные параметры:
@@ -54,7 +53,7 @@ public class DownloadFile implements Runnable {
         this.downloadFilePath = file;
     }
 
-        public Status getStatus() {
+    public Status getStatus() {
         return this.status;
     }
 
@@ -64,6 +63,22 @@ public class DownloadFile implements Runnable {
 
     public Path getFileName() {
         return this.downloadFilePath.getFileName();
+    }
+
+    public double getFileSize() {
+        return this.fileSize;
+    }
+
+    public Double getStartTime() {
+        return this.startTime;
+    }
+
+    public Double getFinishTime() {
+        return this.finishTime;
+    }
+
+    public double getCurrentSize() {
+        return this.currentSize;
     }
 
     public void setStatus(Status status) {
@@ -82,15 +97,33 @@ public class DownloadFile implements Runnable {
             LOGGER.info("Found duplicate file: {}", logMessage);
             this.downloadFilePath = getNewFileName(this.downloadFilePath);
         }
+        try {
+            this.connection = this.url.openConnection();
+            this.fileSize = FileSizeHumanReadable.getBinary(this.connection.getContentLengthLong());
+            download();
+        } catch (IOException e) {
+            LOGGER.error("Cant open connection, {}", e.getMessage());
+            this.status = FAILED;
+        }
+    }
 
-        try (ReadableByteChannel readableByteChannel = Channels.newChannel(this.url.openStream());
-             FileOutputStream fileOutputStream = new FileOutputStream(this.downloadFilePath.toString())) {//todo use NIO
-            fileOutputStream.getChannel().transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
+    private void download() {
+        String logMessage;
+        try (BufferedInputStream bis = new BufferedInputStream(this.connection.getInputStream());
+         FileOutputStream fos = new FileOutputStream(this.downloadFilePath.toString())) {
+            int b;
+            while ((b = bis.read()) != -1) {
+                fos.write(b);
+                this.currentSize++;
+            }
             logMessage = this.url.toExternalForm();
             LOGGER.info("Finished: {}", logMessage);
             this.status = FINISHED;
+        } catch (FileNotFoundException e) {
+            LOGGER.error("Cant open destination file, {}", e.getMessage());
+            this.status = FAILED;
         } catch (IOException e) {
-            LOGGER.error("Cant open connection, {}", e.getMessage());
+            LOGGER.error("Cant create input stream from connection, {}", e.getMessage());
             this.status = FAILED;
         }
     }
@@ -101,9 +134,17 @@ public class DownloadFile implements Runnable {
         int i = 1;
         while (Files.exists(p)) {
             String newStr = str.replaceFirst("[.]", " (" + i + ").");
-            p = p.getParent().resolve(Paths.get(String.valueOf(newStr)));
+            p = p.getParent().resolve(Paths.get(newStr));
             i++;
         }
         return p;
+    }
+
+    public String getProgress() {
+        return String.format("%1$5.2f", this.currentSize / this.fileSize * 100);
+    }
+
+    public double getProgressRaw() {
+        return this.currentSize / this.fileSize;
     }
 }

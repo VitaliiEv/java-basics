@@ -40,6 +40,18 @@ public class TaskList<K, V extends DownloadFile> {
         return this.newTaskList; //must return empty only if parser finished
     }
 
+    public synchronized List<V> getFilteredTasks(Status status) {
+        return this.taskMap.values().stream()
+                .filter(v -> v.getStatus().equals(status))
+                .collect(Collectors.toList());
+    }
+
+    public synchronized long countFilteredTasks(Status status) {
+        return this.taskMap.entrySet().stream()
+                .filter(kvEntry -> kvEntry.getValue().getStatus().equals(status))
+                .count();
+    }
+
     private synchronized void waitForNewTasks() {
         while (Main.getParserStatus() != FINISHED) {
             LOGGER.info("Parser running, waiting for new elements");
@@ -52,6 +64,7 @@ public class TaskList<K, V extends DownloadFile> {
     }
 
     public synchronized void updateNewTasksList() {
+//        this.newTaskList = getFilteredTasks(NOT_STARTED);
         this.newTaskList = this.taskMap.entrySet().stream()
                 .filter(kvEntry -> kvEntry.getValue().getStatus().equals(NOT_STARTED))
                 .collect(Collectors.toList());

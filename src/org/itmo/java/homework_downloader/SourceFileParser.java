@@ -35,7 +35,11 @@ public class SourceFileParser implements Runnable {
     }
 
     public Status getStatus() {
-        return status;
+        return this.status;
+    }
+
+    public int getLinesTotal() {
+        return linesTotal;
     }
 
     @Override
