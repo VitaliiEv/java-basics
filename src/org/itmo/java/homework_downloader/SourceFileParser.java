@@ -5,11 +5,13 @@ import org.slf4j.Logger;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.itmo.java.homework_downloader.Status.*;
 
@@ -38,23 +40,24 @@ public class SourceFileParser implements Runnable {
 
     @Override
     public void run() {
+        String message;
         this.status = RUNNING;
-        try (FileReader fileReader = new FileReader(this.SOURCE_PATH.toString()); // todo NIO
-             BufferedReader bufferedReader = new BufferedReader(Objects.requireNonNull(fileReader))) {
-            LOGGER.info("Buffer ready: {}", bufferedReader.ready());
-            while (bufferedReader.ready()) {
+        try (Stream<String> lines = Files.lines(this.SOURCE_PATH, Charset.defaultCharset())) {
+            message = this.SOURCE_PATH.getFileName().toString();
+            LOGGER.info("Parsing source file: {}", message);
+            for (String s: lines.collect(Collectors.toList())) {
                 this.linesTotal++;
-                Task<String, DownloadFile> task = parseTask(bufferedReader.readLine());
+                Task<String, DownloadFile> task = parseTask(s);
                 if (task != null) {
                     addTask(task);
                 }
             }
             this.status = FINISHED;
             this.TASK_LIST.updateNewTasksList(); // in order to notify DM that job is done
-            String message = "Parsing source file finished. Formed " + this.linesAdded + " download tasks from " +
+            message = "Parsing source file finished. Formed " + this.linesAdded + " download tasks from " +
                     this.linesTotal + " lines";
             LOGGER.info(message);
-            message = String.format("Formed list of tasks: %n")  + this.TASK_LIST.toString();
+            message = String.format("Formed list of tasks: %n") + this.TASK_LIST.toString();
             LOGGER.debug(message);
 
         } catch (NullPointerException e) {
@@ -103,7 +106,7 @@ public class SourceFileParser implements Runnable {
 
     public Path validateFilename(String fileName) {
         try {
-            Path absPath =  this.DESTINATION_PATH.resolve(Paths.get(fileName.trim()));
+            Path absPath = this.DESTINATION_PATH.resolve(Paths.get(fileName.trim()));
             return absPath;
         } catch (InvalidPathException e) {
             // todo, revalidate filename
