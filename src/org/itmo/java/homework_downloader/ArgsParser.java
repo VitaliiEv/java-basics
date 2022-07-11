@@ -20,7 +20,7 @@ public class ArgsParser {
             throw new IOException("Not a directory at given path");
         }
         this.SOURCE_PATH = Paths.get(arguments[2]).toAbsolutePath();
-        if (!Files.isRegularFile(this.SOURCE_PATH)) {
+        if (!Files.isRegularFile(this.SOURCE_PATH) || !Files.exists(this.SOURCE_PATH)) {
             throw new IOException("Not a file at given path");
         }
     }

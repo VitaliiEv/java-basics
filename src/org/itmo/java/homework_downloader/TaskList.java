@@ -31,8 +31,9 @@ public class TaskList<K, V extends DownloadFile> {
 
     public synchronized List<Map.Entry<K, V>> getNewTasks() {
         updateNewTasksList(); // firstly try to update to  add new tasks and filter out queued tasks
-        if (this.newTaskList.isEmpty() && Main.getParserStatus() != FINISHED) { // if after update list is empty and
-            // parser running - wait for new elements
+        if (this.newTaskList.isEmpty() && Main.getParserStatus() != FINISHED && Main.getParserStatus() != FAILED) {
+            // if after update list is empty and  parser running - wait for new elements
+            // todo hags if sourcefileparcer failed
             waitForNewTasks();
             updateNewTasksList(); // reinitialize newTasksList
         }

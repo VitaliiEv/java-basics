@@ -60,7 +60,7 @@ public class Main {
         ArgsParser argsParser = new ArgsParser(args);
         int streams = argsParser.getStreams();
         Path destination = argsParser.getDestinationPath();
-        Path sourceFile = argsParser.getDestinationPath();
+        Path sourceFile = argsParser.getSourcePath();
         sourceFileParser = new SourceFileParser(sourceFile, destination, TASK_LIST);
         Thread sourceFileParserThread = new Thread(sourceFileParser, SOURCE_FILE_PARSER_THREAD_NAME);
 
