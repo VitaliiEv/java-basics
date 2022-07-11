@@ -3,7 +3,6 @@ package org.itmo.java.homework_downloader;
 import org.slf4j.Logger;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -29,17 +28,12 @@ public class DownloadManager implements Runnable {
         LOGGER.info("Downloading manager started");
         this.status = RUNNING;
         ExecutorService executor = Executors.newFixedThreadPool(this.STREAMS);
-        List<Map.Entry<String, DownloadFile>> notStartedTasks = TASK_LIST.getNewTasks();
+        List<DownloadFile> notStartedTasks = TASK_LIST.getNewTasks();
         while (!notStartedTasks.isEmpty()) {
-//            for (Map.Entry<String, DownloadFile> entry : notStartedTasks) {
-//                entry.getValue().setStatus(IN_QUEUE);
-//                executor.execute(entry.getValue());
-//            }
-            notStartedTasks.stream()
-                    .forEach(entry -> {
-                        entry.getValue().setStatus(Status.IN_QUEUE);
-                        executor.execute(entry.getValue());
-                    });
+            notStartedTasks.forEach(task -> {
+                task.setStatus(Status.IN_QUEUE);
+                executor.execute(task);
+            });
             notStartedTasks = TASK_LIST.getNewTasks();
         }
         executor.shutdown();

@@ -10,7 +10,7 @@ import static org.itmo.java.homework_downloader.Status.*;
 public class TaskList<K, V extends DownloadFile> {
     private static final Logger LOGGER = Main.getLogger();
     private final Map<K, V> taskMap;
-    private List<Map.Entry<K, V>> newTaskList; // iterable list of tasks with "NOT_STARTED" Status
+    private List<V> newTaskList; // iterable list of tasks with "NOT_STARTED" Status
 
     public TaskList() {
         this.taskMap = new HashMap<>();
@@ -29,7 +29,7 @@ public class TaskList<K, V extends DownloadFile> {
 
     }
 
-    public synchronized List<Map.Entry<K, V>> getNewTasks() {
+    public synchronized List<V> getNewTasks() {
         updateNewTasksList(); // firstly try to update to  add new tasks and filter out queued tasks
         if (this.newTaskList.isEmpty() && Main.getParserStatus() != FINISHED && Main.getParserStatus() != FAILED) {
             // if after update list is empty and  parser running - wait for new elements
@@ -64,10 +64,10 @@ public class TaskList<K, V extends DownloadFile> {
     }
 
     public synchronized void updateNewTasksList() {
-//        this.newTaskList = getFilteredTasks(NOT_STARTED);
-        this.newTaskList = this.taskMap.entrySet().stream()
-                .filter(kvEntry -> kvEntry.getValue().getStatus().equals(NOT_STARTED))
-                .collect(Collectors.toList());
+        this.newTaskList = getFilteredTasks(NOT_STARTED);
+//        this.newTaskList = this.taskMap.entrySet().stream()
+//                .filter(kvEntry -> kvEntry.getValue().getStatus().equals(NOT_STARTED))
+//                .collect(Collectors.toList());
         notifyAll();
     }
 

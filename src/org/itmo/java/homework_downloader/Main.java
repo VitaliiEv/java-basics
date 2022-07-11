@@ -74,7 +74,7 @@ public class Main {
 
         sourceFileParserThread.start();
         downloadManagerThread.start();
-        statusMonitorThread.start();
+//        statusMonitorThread.start();
     }
 
     public static Logger getLogger() {
