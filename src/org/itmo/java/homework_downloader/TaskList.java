@@ -9,11 +9,19 @@ import static org.itmo.java.homework_downloader.Status.*;
 
 public class TaskList<K, V extends DownloadFile> {
     private static final Logger LOGGER = Main.getLogger();
-    private final Map<K, V> taskMap;
+    private final Map<K, V> TASK_MAP;
     private List<V> newTaskList; // iterable list of tasks with "NOT_STARTED" Status
+    private SourceFileParser sourceFileParser;
 
     public TaskList() {
-        this.taskMap = new HashMap<>();
+        this.TASK_MAP = new HashMap<>();
+    }
+
+    public void setSourceFileParser(SourceFileParser sourceFileParser) {
+        if (sourceFileParser == null) {
+            throw new NullPointerException("Cant set source file parser");
+        }
+        this.sourceFileParser = sourceFileParser;
     }
 
     public synchronized <T extends java.util.Map.Entry<K, V>> void taskCreate(T task) throws UnsupportedOperationException {
@@ -21,7 +29,7 @@ public class TaskList<K, V extends DownloadFile> {
     }
 
     public synchronized void taskCreate(K link, V task) throws UnsupportedOperationException {
-        V t = this.taskMap.putIfAbsent(link, task);
+        V t = this.TASK_MAP.putIfAbsent(link, task);
         notifyAll(); // notify dm in any case: when task is created or not
         if (t != null) {
             throw new UnsupportedOperationException("Ignored duplicate link: " + link);
@@ -31,9 +39,9 @@ public class TaskList<K, V extends DownloadFile> {
 
     public synchronized List<V> getNewTasks() {
         updateNewTasksList(); // firstly try to update to  add new tasks and filter out queued tasks
-        if (this.newTaskList.isEmpty() && Main.getParserStatus() != FINISHED && Main.getParserStatus() != FAILED) {
+        if (this.newTaskList.isEmpty() && this.sourceFileParser.getStatus() != FINISHED && this.sourceFileParser.getStatus() != FAILED) {
             // if after update list is empty and  parser running - wait for new elements
-            // todo hags if sourcefileparcer failed
+            // todo check what happens if sourcefileparser failed
             waitForNewTasks();
             updateNewTasksList(); // reinitialize newTasksList
         }
@@ -41,19 +49,19 @@ public class TaskList<K, V extends DownloadFile> {
     }
 
     public synchronized List<V> getFilteredTasks(Status status) {
-        return this.taskMap.values().stream()
+        return this.TASK_MAP.values().stream()
                 .filter(v -> v.getStatus().equals(status))
                 .collect(Collectors.toList());
     }
 
     public synchronized long countFilteredTasks(Status status) {
-        return this.taskMap.entrySet().stream()
+        return this.TASK_MAP.entrySet().stream()
                 .filter(kvEntry -> kvEntry.getValue().getStatus().equals(status))
                 .count();
     }
 
     private synchronized void waitForNewTasks() {
-        while (Main.getParserStatus() != FINISHED) {
+        while (this.sourceFileParser.getStatus() != FINISHED) {
             LOGGER.info("Parser running, waiting for new elements");
             try {
                 wait(); //for new tasks or parser finishing its job,
@@ -65,16 +73,13 @@ public class TaskList<K, V extends DownloadFile> {
 
     public synchronized void updateNewTasksList() {
         this.newTaskList = getFilteredTasks(NOT_STARTED);
-//        this.newTaskList = this.taskMap.entrySet().stream()
-//                .filter(kvEntry -> kvEntry.getValue().getStatus().equals(NOT_STARTED))
-//                .collect(Collectors.toList());
         notifyAll();
     }
 
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
-        for (Map.Entry<K, V> e : this.taskMap.entrySet()) {
+        for (Map.Entry<K, V> e : this.TASK_MAP.entrySet()) {
             str.append(e.getKey())
                     .append(" ")
                     .append(e.getValue().getFileName().toString())

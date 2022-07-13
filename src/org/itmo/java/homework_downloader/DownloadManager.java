@@ -12,11 +12,16 @@ public class DownloadManager implements Runnable {
     private static final Logger LOGGER = Main.getLogger();
     private final int STREAMS;
     private final TaskList<String, DownloadFile> TASK_LIST;
+    private final SourceFileParser SOURCE_FILE_PARSER;
     private Status status = NOT_STARTED;
 
-    public DownloadManager(int STREAMS, TaskList<String, DownloadFile> TASK_LIST) {
-        this.STREAMS = STREAMS;
-        this.TASK_LIST = TASK_LIST;
+    public DownloadManager(int streams, TaskList<String, DownloadFile> taskList, SourceFileParser sourceFileParser) {
+        if (taskList == null || sourceFileParser == null) {
+            throw new NullPointerException("Arguments must not be null");
+        }
+        this.STREAMS = streams;
+        this.TASK_LIST = taskList;
+        this.SOURCE_FILE_PARSER = sourceFileParser;
     }
 
     public Status getStatus() {

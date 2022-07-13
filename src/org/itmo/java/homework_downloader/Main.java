@@ -44,12 +44,6 @@ public class Main {
     private static final String SOURCE_FILE_PARSER_THREAD_NAME = "Source File Parser";
     private static final String DOWNLOAD_MANAGER_THREAD_NAME = "Download Manager";
     private static final String STATUS_MONITOR_THREAD_NAME = "Status Monitor";
-    private static final TaskList<String, DownloadFile> TASK_LIST = new TaskList<>();
-    private static SourceFileParser sourceFileParser;
-    private static DownloadManager downloadManager;
-
-//    private static final Status STATUS;
-//    private static final String STATUS_THREAD_NAME = "";
 
     public static void main(String[] args) throws IOException {
         LOGGER.info("Debug log is enabled: {}", LOGGER.isDebugEnabled());
@@ -62,14 +56,17 @@ public class Main {
         int streams = argsParser.getStreams();
         Path destination = argsParser.getDestinationPath();
         Path sourceFile = argsParser.getSourcePath();
-        sourceFileParser = new SourceFileParser(sourceFile, destination, TASK_LIST);
+
+        TaskList<String, DownloadFile> taskList = new TaskList<>();
+        SourceFileParser sourceFileParser = new SourceFileParser(sourceFile, destination, taskList);
+        taskList.setSourceFileParser(sourceFileParser);
         Thread sourceFileParserThread = new Thread(sourceFileParser, SOURCE_FILE_PARSER_THREAD_NAME);
 
-        downloadManager = new DownloadManager(streams, TASK_LIST);
+        DownloadManager downloadManager = new DownloadManager(streams, taskList, sourceFileParser);
         Thread downloadManagerThread = new Thread(downloadManager, DOWNLOAD_MANAGER_THREAD_NAME);
 
 
-        StatusMonitor statusMonitor = new StatusMonitor(TASK_LIST);
+        StatusMonitor statusMonitor = new StatusMonitor(taskList, sourceFileParser, downloadManager);
         Thread statusMonitorThread = new Thread(statusMonitor, STATUS_MONITOR_THREAD_NAME);
 
         sourceFileParserThread.start();
@@ -79,17 +76,5 @@ public class Main {
 
     public static Logger getLogger() {
         return LOGGER;
-    }
-
-    public static Status getParserStatus() {
-        return sourceFileParser.getStatus();
-    }
-
-    public static int getLinesTotal() {
-        return sourceFileParser.getLinesTotal();
-    }
-
-    public static Status getDMStatus() {
-        return downloadManager.getStatus();
     }
 }
