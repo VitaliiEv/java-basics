@@ -5,10 +5,18 @@ import org.slf4j.Logger;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.Temporal;
 
+import static java.nio.file.StandardOpenOption.*;
 import static org.itmo.java.homework_downloader.Status.*;
 
 public class DownloadFile implements Runnable {
@@ -18,8 +26,8 @@ public class DownloadFile implements Runnable {
     private Path downloadFilePath;
     private Status status;
     private double fileSize;
-    private Double startTime;
-    private Double finishTime;
+    private Temporal startTime;
+    private Temporal finishTime;
     private double currentSize = 0;
     private Double currentTime;
 
@@ -51,6 +59,8 @@ public class DownloadFile implements Runnable {
         this.url = url;
         this.status = NOT_STARTED;
         this.downloadFilePath = file;
+//        this.startTime = null;
+//        this.finishTime = null;
     }
 
     public Status getStatus() {
@@ -69,12 +79,16 @@ public class DownloadFile implements Runnable {
         return this.fileSize;
     }
 
-    public Double getStartTime() {
+    public Temporal getStartTime() {
         return this.startTime;
     }
 
-    public Double getFinishTime() {
+    public Temporal getFinishTime() {
         return this.finishTime;
+    }
+
+    public Duration getDuration() {
+        return Duration.between(this.startTime, this.finishTime);
     }
 
     public double getCurrentSize() {
@@ -88,6 +102,7 @@ public class DownloadFile implements Runnable {
 
     @Override
     public void run() {
+        this.startTime = Instant.now();
         String logMessage;
         logMessage = this.url.toExternalForm();
         LOGGER.info("Downloading: {}", logMessage);
@@ -99,6 +114,7 @@ public class DownloadFile implements Runnable {
         }
         try {
             this.connection = this.url.openConnection();
+            this.connection.setRequestProperty("User-Agent", "Download Manager v.0 by Solomonov V.E.");
             this.fileSize = FileSizeHumanReadable.getBinary(this.connection.getContentLengthLong());
             download();
         } catch (IOException e) {
@@ -109,11 +125,21 @@ public class DownloadFile implements Runnable {
 
     private void download() {
         String logMessage;
+
+//        try (ReadableByteChannel readableByteChannel = Channels.newChannel(this.url.openStream());
+//             FileChannel fileChannel = FileChannel.open(this.downloadFilePath, WRITE, CREATE_NEW)) {
+//            int bufferSize = 1000;
+//            int r;
+//            ByteBuffer byteBuffer = ByteBuffer.allocate(bufferSize);
+//            while ((r = readableByteChannel.read(byteBuffer)) != -1) {
+//                fileChannel.transferFrom(readableByteChannel, 0, bufferSize);
+//                this.currentSize += bufferSize;
+//            }
         try (BufferedInputStream bis = new BufferedInputStream(this.connection.getInputStream());
-         FileOutputStream fos = new FileOutputStream(this.downloadFilePath.toString())) {
+             FileOutputStream fos = new FileOutputStream(this.downloadFilePath.toString())) {
             int b;
             while ((b = bis.read()) != -1) {
-                fos.write(b);
+                fos.write(b); // todo Productivity issues when downloading
                 this.currentSize++;
             }
             logMessage = this.url.toExternalForm();
