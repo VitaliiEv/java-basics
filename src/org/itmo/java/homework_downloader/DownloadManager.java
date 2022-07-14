@@ -6,14 +6,12 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.itmo.java.homework_downloader.Status.*;
 
 public class DownloadManager implements Runnable {
     private static final Logger LOGGER = Main.getLogger();
     private final int STREAMS;
     private final TaskList<String, DownloadFile> TASK_LIST;
     private final SourceFileParser SOURCE_FILE_PARSER;
-    private Status status = NOT_STARTED;
 
     public DownloadManager(int streams, TaskList<String, DownloadFile> taskList, SourceFileParser sourceFileParser) {
         if (taskList == null || sourceFileParser == null) {
@@ -24,16 +22,14 @@ public class DownloadManager implements Runnable {
         this.SOURCE_FILE_PARSER = sourceFileParser;
     }
 
-    public Status getStatus() {
-        return this.status;
-    }
 
     @Override
     public void run() {
-        LOGGER.info("Downloading manager started");
-        this.status = RUNNING;
+        String logMessage;
+         LOGGER.info("Downloading manager thread started");
+
         ExecutorService executor = Executors.newFixedThreadPool(this.STREAMS);
-        List<DownloadFile> notStartedTasks = TASK_LIST.getNewTasks();
+        List<DownloadFile> notStartedTasks = this.TASK_LIST.getNewTasks();
         while (!notStartedTasks.isEmpty()) {
             notStartedTasks.forEach(task -> {
                 task.setStatus(Status.IN_QUEUE);
@@ -41,9 +37,18 @@ public class DownloadManager implements Runnable {
             });
             notStartedTasks = TASK_LIST.getNewTasks();
         }
+        while (!this.TASK_LIST.hasUnfinishedTasks()) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                LOGGER.error("Download manager interrupted");
+                throw new RuntimeException(e);
+            }
+        }
         executor.shutdown();
-        LOGGER.info("Download manager finished");
-        this.status = FINISHED;
+        logMessage = Statistics.getOverallStats(this.TASK_LIST, this.SOURCE_FILE_PARSER);
+        LOGGER.info(logMessage);
+        System.out.println(logMessage);
     }
 
 }

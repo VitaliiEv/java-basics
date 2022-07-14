@@ -41,7 +41,6 @@ public class TaskList<K, V extends DownloadFile> {
         updateNewTasksList(); // firstly try to update to  add new tasks and filter out queued tasks
         if (this.newTaskList.isEmpty() && this.sourceFileParser.getStatus() != FINISHED && this.sourceFileParser.getStatus() != FAILED) {
             // if after update list is empty and  parser running - wait for new elements
-            // todo check what happens if sourcefileparser failed
             waitForNewTasks();
             updateNewTasksList(); // reinitialize newTasksList
         }
@@ -66,7 +65,8 @@ public class TaskList<K, V extends DownloadFile> {
             try {
                 wait(); //for new tasks or parser finishing its job,
             } catch (InterruptedException e) {
-                // todo throw new RuntimeException(e);
+                LOGGER.error("Parser interrupted");
+                throw new RuntimeException(e);
             }
         }
     }
@@ -74,6 +74,20 @@ public class TaskList<K, V extends DownloadFile> {
     public synchronized void updateNewTasksList() {
         this.newTaskList = getFilteredTasks(NOT_STARTED);
         notifyAll();
+    }
+
+    /**
+     * Checks if task list has tasks with status NOT_STARTED or IN_QUEUE
+     */
+    public synchronized boolean hasUnexecutedTasks() {
+        return countFilteredTasks(NOT_STARTED) + countFilteredTasks(IN_QUEUE) > 0;
+    }
+
+    /**
+     * Checks if task list contains only FINISHED and FAILED tasks
+     */
+    public synchronized boolean hasUnfinishedTasks() {
+        return countFilteredTasks(FINISHED) + countFilteredTasks(FAILED) == this.TASK_MAP.size();
     }
 
     @Override

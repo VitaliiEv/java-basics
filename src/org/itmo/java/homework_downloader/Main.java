@@ -8,25 +8,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.file.Path;
 
-/**
- * Консольная утилита для скачивания файлов по HTTP протоколу.
- * Входные параметры:
- * Пример вызова:
- * java -jar utility.jar 5 output_folder links.txt
- * <p>
- * Выходные данные:
- * 1. Все файлы загружаются в n потоков.
- * 2. В процессе работы утилита должна выводить статистику — время работы и
- * количество скачанных байт виде:
- * <p>
- * Загружается файл: %ИМЯ%
- * Файл %ИМЯ% загружен: 1 MB за 1 минуту
- * <p>
- * 3. После завершения работы программа выводит:
- * Загружено: 17 файлов, 2.3 MB
- * Время: 2 минуты 13 секунд
- * Средняя скорость: 17.2 kB/s
- */
+
 public class Main {
     static {
         // must set before the Logger loads logging.properties from the classpath
@@ -43,19 +25,23 @@ public class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
     private static final String SOURCE_FILE_PARSER_THREAD_NAME = "Source File Parser";
     private static final String DOWNLOAD_MANAGER_THREAD_NAME = "Download Manager";
-    private static final String STATUS_MONITOR_THREAD_NAME = "Status Monitor";
 
     public static void main(String[] args) throws IOException {
         LOGGER.info("Debug log is enabled: {}", LOGGER.isDebugEnabled());
-        args = new String[3];
-        args[0] = "4";
-        args[1] = "E:\\Документы\\Виталий\\Учеба\\ИТМО\\124-19-Java(Basics)\\Практика\\";
-        args[2] = "E:\\Документы\\Виталий\\Учеба\\ИТМО\\124-19-Java(Basics)\\Практика\\список.txt";
 
         ArgsParser argsParser = new ArgsParser(args);
         int streams = argsParser.getStreams();
         Path destination = argsParser.getDestinationPath();
         Path sourceFile = argsParser.getSourcePath();
+        StringBuilder logMessage = new StringBuilder();
+        logMessage.append("Downloading from: ")
+                .append(sourceFile.getFileName().toString())
+                .append(" in ")
+                .append(streams)
+                .append(" streams\nto ")
+                .append(destination.toString());
+        LOGGER.info(logMessage.toString());
+        System.out.println(logMessage);
 
         TaskList<String, DownloadFile> taskList = new TaskList<>();
         SourceFileParser sourceFileParser = new SourceFileParser(sourceFile, destination, taskList);
@@ -65,13 +51,10 @@ public class Main {
         DownloadManager downloadManager = new DownloadManager(streams, taskList, sourceFileParser);
         Thread downloadManagerThread = new Thread(downloadManager, DOWNLOAD_MANAGER_THREAD_NAME);
 
-
-        StatusMonitor statusMonitor = new StatusMonitor(taskList, sourceFileParser, downloadManager);
-        Thread statusMonitorThread = new Thread(statusMonitor, STATUS_MONITOR_THREAD_NAME);
-
         sourceFileParserThread.start();
         downloadManagerThread.start();
-//        statusMonitorThread.start();
+
+
     }
 
     public static Logger getLogger() {

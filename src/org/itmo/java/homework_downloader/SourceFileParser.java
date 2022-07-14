@@ -6,9 +6,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -96,7 +94,6 @@ public class SourceFileParser implements Runnable {
 
     public URL validateUrl(String link) {
         try {
-            // todo CHECK if valid HTTP URL
             URL url = new URL(link);
             if (!url.getProtocol().equals("http")) {
                 throw new UnsupportedOperationException("only http supported: " + link);
@@ -110,10 +107,8 @@ public class SourceFileParser implements Runnable {
 
     public Path validateFilename(String fileName) {
         try {
-            Path absPath = this.DESTINATION_PATH.resolve(Paths.get(fileName.trim()));
-            return absPath;
+            return this.DESTINATION_PATH.resolve(Paths.get(fileName.trim()));
         } catch (InvalidPathException e) {
-            // todo, revalidate filename
             LOGGER.warn("Invalid filename, task ignored, {}", e.getMessage());
         }
         return null;
